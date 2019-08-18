@@ -2,10 +2,10 @@
 SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers. 
 
 # Project Status
-## Specification
+### Specification
 SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/master/Documentation/SRP16%20ISA%20Specification.pdf)
 
-## Roadmap
+### Roadmap
 - [x] ISA Specification
 - [ ] Reference Implementation in Verilog
 - [ ] Assembler
@@ -14,7 +14,7 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 - [ ] Pipelined Implementation
 
 # ISA Quick Reference
-## Registers:
+### Registers:
 + General Purpose Registers R0-R15 (Accessible by Load-Store Instructions)
 + General Purpose Registers R16-R31 (Not Accessible by Load-Store Instructions)
 + Accumulator Register (R60)
@@ -22,8 +22,8 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 + Stack Pointer or SP (R62)
 + Program Counter or PC (R63)
 
-## Instructions:
-<table width="643" cellspacing="0" cellpadding="4" align="center">
+### Instructions:
+<table align="center">
 	<colgroup><col width="316">
 	<col width="309">
 	</colgroup><tbody><tr valign="top">
@@ -498,3 +498,6 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 		</td>
 	</tr>
 </tbody></table>
+
+# License
++ MIT License. See: https://github.com/RainingComputers/SRP16/blob/master/LICENSE.md
