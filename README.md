@@ -13,6 +13,11 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 - [ ] Interrupts and Timers
 - [ ] Pipelined Implementation
 
+# Architecture  Overview
+<div style="text-align:center">
+<img src="https://raw.githubusercontent.com/RainingComputers/SRP16/master/Documentation/SRP16%20Architecture.png"/>
+</div>
+
 # ISA Quick Reference
 ### Registers:
 + General Purpose Registers R0-R15 (Accessible by Load-Store Instructions)
