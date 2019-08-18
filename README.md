@@ -1,7 +1,7 @@
-# SRP16
+## SRP16
 SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers. 
 
-# Project Status
+## Project Status
 ### Specification
 SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/master/Documentation/SRP16%20ISA%20Specification.pdf)
 
@@ -13,7 +13,7 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 - [ ] Interrupts and Timers
 - [ ] Pipelined Implementation
 
-# ISA Quick Reference
+## ISA Quick Reference
 ### Architecture:
 
 <p align="center">
@@ -505,5 +505,5 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 	</tr>
 </tbody></table>
 
-# License
+## License
 + MIT License. See: https://github.com/RainingComputers/SRP16/blob/master/LICENSE.md
