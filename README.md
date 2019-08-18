@@ -16,10 +16,9 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 # ISA Quick Reference
 ### Architecture:
 
-<div style="text-align:center">
-    <img align="center" src="https://raw.githubusercontent.com/RainingComputers/SRP16/master/Documentation/SRP16%20Architecture.png"/>
-</div>
-
+<p align="center">
+    <img src="https://raw.githubusercontent.com/RainingComputers/SRP16/master/Documentation/SRP16%20Architecture.png"/>
+</p>
 
 ### Registers:
 + General Purpose Registers R0-R15 (Accessible by Load-Store Instructions)
