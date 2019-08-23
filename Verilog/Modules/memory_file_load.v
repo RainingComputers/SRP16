@@ -5,13 +5,13 @@ module memory_file_load(din, addrin, read, write, clk, dout);
     input read, write, clk;
 
     /* Output ports */
-    output [7:0] dout;
+    output [15:0] dout;
 
     /* Memory */
     reg [7:0] data[65536:0];
 
     /* If read is high, dout[15:0] will be data[15:0][id] */
-    assign dout = (read)? data[addrin] : 16'hzz;
+    assign dout = (read)? {8'h00, data[addrin]} : 16'hzzzz;
 
     /* Load program from program file */
     initial begin

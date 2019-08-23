@@ -2,7 +2,7 @@ module register_file_tb();
 
     /* Inputs */
     reg [15:0] din;
-    reg read, write, writeu, inc, dec, clk;
+    reg read, readu, write, writeu, inc, dec, clk;
     reg [5:0] id;
 
     /* Outputs */
@@ -10,7 +10,7 @@ module register_file_tb();
 
     /* Instantiate module */
     register_file U1(
-        din, read, write, writeu, inc, dec, id, clk, dout
+        din, read, readu, write, writeu, inc, dec, id, clk, dout
     );
 
     /* Loop variable */
@@ -26,6 +26,7 @@ module register_file_tb();
 
         din = 16'h0000;
         read = 0;
+        readu = 0;
         write = 1;
         inc = 0;
         dec = 0;
@@ -118,6 +119,11 @@ module register_file_tb();
         read = 1;
         #1;
         read = 0;
+        #1;
+
+        readu = 1;
+        #1;
+        readu = 0;
         #1;
 
         $finish;

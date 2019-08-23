@@ -5,7 +5,7 @@ module memory_file_load_tb();
     reg read, write, clk;
 
     /* Output ports */
-    wire [7:0] dout;
+    wire [15:0] dout;
 
     /* Instantiate module */
     memory_file_load U1(

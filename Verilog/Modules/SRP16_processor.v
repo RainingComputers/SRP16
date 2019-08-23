@@ -10,7 +10,9 @@ module SRP16_processor(clk, reset);
     /* Control Lines */
     wire pc_read, pc_readplusone, pc_readplusfour, pc_write, pc_offset, pc_inc;
     wire ir_write, ir_writeu;
-    wire reg_file_read, reg_file_write, reg_file_writu, reg_file_inc, reg_file_dec;
+    wire reg_file_read, reg_file_readu;
+    wire reg_file_write, reg_file_writu; 
+    wire reg_file_inc, reg_file_dec;
     wire [5:0] reg_file_id;
     wire mem_read, mem_write;
     wire [11:0] mptr_offset;
@@ -36,13 +38,15 @@ module SRP16_processor(clk, reset);
     );
 
     register_file REG_FILE(
-        data_bus, reg_file_read, reg_file_write, reg_file_writu,
-        reg_file_inc, reg_file_dec, reg_file_id, clk, data_bus
+        data_bus, reg_file_read, reg_file_readu,
+        reg_file_write, reg_file_writu,
+        reg_file_inc, reg_file_dec,
+        reg_file_id, clk, data_bus
     );
 
     memory_file_load MEMORY(
         data_bus[7:0], address_bus, mem_read, mem_write, 
-        clk, data_bus[7:0]
+        clk, data_bus
     );
 
     mptr MPTR(
@@ -62,10 +66,12 @@ module SRP16_processor(clk, reset);
 
     /* Control Module */
     control_decode CONTROL(
-        instruction, clk,
+        reset, instruction, clk,
         pc_read, pc_readplusone, pc_readplusfour, pc_write, pc_offset, pc_inc,
         ir_write, ir_writeu,
-        reg_file_read, reg_file_write, reg_file_writu, reg_file_inc, reg_file_dec,
+        reg_file_read, reg_file_readu,
+        reg_file_write, reg_file_writu, 
+        reg_file_inc, reg_file_dec,
         reg_file_id,
         mem_read, mem_write,
         mptr_offset, mptr_read_abus, mptr_read_dbus, mptr_write, mptr_writeu,
