@@ -16,10 +16,11 @@ module SRP16_processor(clk, reset);
     wire [5:0] reg_file_id;
     wire mem_read, mem_write;
     wire [11:0] mptr_offset;
-    wire mptr_read_abus, mptr_read_dbus, mptr_write, mptr_writeu;
+    wire mptr_read_abus, mptr_read_abusplus; 
+    wire mptr_read_dbus, mptr_write, mptr_writeu;
     wire sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec;
     wire [4:0] alu_opcode;
-    wire alu_read, alu_write;
+    wire alu_read, alu_write, alu_writeu, flag;
 
     /* ALU Flag Output */
     wire alu_flag;
@@ -50,8 +51,9 @@ module SRP16_processor(clk, reset);
     );
 
     mptr MPTR(
-        data_bus, mptr_offset, mptr_read_abus, mptr_read_dbus, 
-        mptr_write, mptr_writeu, clk, address_bus, data_bus, reset
+        data_bus, mptr_offset, mptr_read_abus, mptr_read_abusplus, 
+        mptr_read_dbus, mptr_write, mptr_writeu,
+        clk, address_bus, data_bus, reset
     );
 
     sp SP(
@@ -60,8 +62,8 @@ module SRP16_processor(clk, reset);
     );
 
     alu ALU(
-        alu_opcode, data_bus, alu_read, alu_write, clk, data_bus,
-        flag
+        alu_opcode, data_bus, alu_read, alu_write, alu_writeu, 
+        clk, data_bus, flag
     );
 
     /* Control Module */
@@ -74,9 +76,10 @@ module SRP16_processor(clk, reset);
         reg_file_inc, reg_file_dec,
         reg_file_id,
         mem_read, mem_write,
-        mptr_offset, mptr_read_abus, mptr_read_dbus, mptr_write, mptr_writeu,
+        mptr_offset, mptr_read_abus, mptr_read_abusplus,
+        mptr_read_dbus, mptr_write, mptr_writeu,
         sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec,
-        alu_opcode, alu_read, alu_write, flag,
+        alu_opcode, alu_read, alu_write, alu_writeu, flag,
         data_bus
     );
 

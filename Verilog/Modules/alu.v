@@ -16,11 +16,11 @@
 `define SBB  5'b01110
 `define NOTF 5'b10000
 
-module alu(opcode, operand, read, write, clk, accout, flag);
+module alu(opcode, operand, read, write, writeu, clk, accout, flag);
     /* Input ports */
     input [4:0] opcode;
     input [15:0] operand;
-    input read, write, clk;
+    input read, write, writeu, clk;
 
     /* Output ports */
     output [15:0] accout;
@@ -47,6 +47,11 @@ module alu(opcode, operand, read, write, clk, accout, flag);
         if(write) begin
             accumulator_reg[15:0] <= operand;
         end 
+
+        /* Write to upper 4 bits if writeu is high */
+        if(writeu) begin
+            accumulator_reg[15:12] <= operand[3:0];
+        end
 
         /* Check for opcode and perform arithmatic or logic operation */
         case(opcode)

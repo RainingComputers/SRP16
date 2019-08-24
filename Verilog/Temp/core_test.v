@@ -8,7 +8,7 @@ module sim_core_tb();
 
     /* Variables */
     integer i = 0;
-    integer n_cycles = 4;
+    integer n_cycles = 29;
 
     /* Begin testing */
     initial begin
@@ -20,8 +20,12 @@ module sim_core_tb();
         for (i = 0; i < 32; i = i+1)
             $dumpvars(0, sim_core_tb.CPU.REG_FILE.R[i]);
 
+        /* Dump memory */
+        for (i = 0; i < 3000; i = i+1)
+            $dumpvars(0, sim_core_tb.CPU.MEMORY.data[i]);
+
         /* Reset processor */
-        clk <= 0;
+        clk <= 1;
         reset <= 1; 
         #1;
         reset <= 0;
@@ -29,9 +33,9 @@ module sim_core_tb();
 
         /* Begin clock cycle */
         for(i = 1; i <= n_cycles; i=i+1) begin
-           clk <= 1;
+           clk <= 0;
            #1;
-           clk = 0;
+           clk = 1;
            #1; 
         end
     end

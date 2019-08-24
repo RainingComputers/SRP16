@@ -2,7 +2,7 @@ module mptr_tb();
 
     /* Inputs */
     reg [15:0] din;
-    reg read_abus, read_dbus, write, writeu, clk, reset;
+    reg read_abus, read_abusplus, read_dbus, write, writeu, clk, reset;
     reg [11:0] offsetin;
     /* Outputs */
     wire [15:0] abus_out;
@@ -10,7 +10,7 @@ module mptr_tb();
 
     /* Instantiate module */
     mptr U1(
-        din, offsetin, read_abus, read_dbus, write,
+        din, offsetin, read_abus, read_abusplus, read_dbus, write,
         writeu, clk, abus_out, dbus_out, reset
     );
 
@@ -23,6 +23,7 @@ module mptr_tb();
         din = 16'h0000;
         offsetin = 12'h002;
         read_abus = 0;
+        read_abusplus = 0;
         read_dbus = 0;
         writeu = 0;
         write = 0;
@@ -111,6 +112,11 @@ module mptr_tb();
         read_dbus = 1;
         #1;
         read_dbus = 0;
+        #1;
+
+        read_abusplus = 1;
+        #1;
+        read_abusplus = 0;
         #1;
 
 

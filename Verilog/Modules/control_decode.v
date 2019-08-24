@@ -22,9 +22,10 @@ module control_decode(reset, instruction, clk,
     reg_file_inc, reg_file_dec,
     reg_file_id,
     mem_read, mem_write,
-    mptr_offset, mptr_read_abus, mptr_read_dbus, mptr_write, mptr_writeu,
+    mptr_offset, mptr_read_abus, mptr_read_abusplus,
+    mptr_read_dbus, mptr_write, mptr_writeu,
     sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec,
-    alu_opcode, alu_read, alu_write, flag, 
+    alu_opcode, alu_read, alu_write, alu_writeu, flag, 
     dout
 );
 
@@ -41,10 +42,11 @@ module control_decode(reset, instruction, clk,
     output reg [5:0] reg_file_id;
     output reg mem_read, mem_write;
     output reg [11:0] mptr_offset;
-    output reg mptr_read_abus, mptr_read_dbus, mptr_write, mptr_writeu;
+    output reg mptr_read_abus, mptr_read_abusplus; 
+    output reg mptr_read_dbus, mptr_write, mptr_writeu;
     output reg sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec;
     output reg [4:0] alu_opcode;
-    output reg alu_read, alu_write;
+    output reg alu_read, alu_write, alu_writeu;
     output reg [15:0] dout;
 
     /* Internal variables */
@@ -61,10 +63,11 @@ module control_decode(reset, instruction, clk,
         reg_file_id <= 5'b00000;
         {mem_read, mem_write} <= 2'b00;
         mptr_offset <= 12'h000;
-        {mptr_read_abus, mptr_read_dbus, mptr_write, mptr_writeu} <= 4'b0000;
+        {mptr_read_abus, mptr_read_abusplus} <= 2'b00;
+        {mptr_read_dbus, mptr_write, mptr_writeu} <= 3'b000;
         {sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec} <= 5'b00000;
         alu_opcode <= 4'b0000;
-        {alu_read, alu_write} <= 2'b00;
+        {alu_read, alu_write, alu_writeu} <= 3'b000;
         dout <= 16'hzzzz;
     end
     endtask
@@ -105,6 +108,126 @@ module control_decode(reset, instruction, clk,
                     dout <= {{8{`SIGN_BIT}}, `E_TYPE_IMM};
                     pc_inc <= 1;
                     phase <= 3'b000;
+                end
+                
+                /* LDRU Instruction */
+                4'b0001: begin
+                    clear_control_lines();
+                    reg_file_writu <= 1;
+                    reg_file_id <= `E_TYPE_REG1;
+                    dout <= {8'h00, `E_TYPE_IMM};
+                    pc_inc <= 1;
+                    phase <= 3'b000;
+                end
+
+                /* LD@MPTR Instruction */
+                4'b0010: begin
+                    if(phase == 3'b010) begin
+                        clear_control_lines();
+                        mptr_read_abus <= 1;
+                        mem_read <= 1;
+                        reg_file_write <= 1;
+                        reg_file_id <= `E_TYPE_REG1;
+                        phase <= phase + 3'b001;            
+                    end
+                    else if(phase == 3'b011) begin
+                        clear_control_lines();
+                        mptr_read_abusplus <= 1;
+                        mem_read <= 1;
+                        mptr_offset <= `E_TYPE_OFFSET;
+                        reg_file_writu <= 1;
+                        reg_file_id <= `E_TYPE_REG1;
+                        pc_inc <= 1;
+                        phase <= 3'b000;
+                    end
+                end
+
+                /* ST@MPTR Instruction */
+                4'b0011: begin
+                    if(phase == 3'b010) begin
+                        clear_control_lines();
+                        mptr_read_abus <= 1;
+                        mem_write <= 1;
+                        reg_file_read <= 1;
+                        reg_file_id <= `E_TYPE_REG1;
+                        phase <= phase + 3'b001;
+                    end
+                    else if(phase == 3'b011) begin
+                        clear_control_lines();
+                        mptr_read_abusplus <= 1;
+                        mem_write <= 1;
+                        mptr_offset <= `E_TYPE_OFFSET;
+                        reg_file_readu <= 1;
+                        reg_file_id <= `E_TYPE_REG1;
+                        pc_inc <= 1;
+                        phase <= 3'b000;
+                    end
+                end                
+
+                /* LDB@MPTR Instruction */
+                4'b0100: begin
+                    clear_control_lines();
+                    mptr_read_abus <= 1;
+                    mem_read <= 1;
+                    mptr_offset <= `E_TYPE_OFFSET;
+                    reg_file_write <= 1;
+                    reg_file_id <= `E_TYPE_REG1;
+                    pc_inc <= 1;
+                    phase <= 3'b000;
+                end
+
+                /* STB@MPTR Instruction */
+                4'b0101: begin
+                    clear_control_lines();
+                    mptr_read_abus <= 1;
+                    mem_write <= 1;
+                    mptr_offset <= `E_TYPE_OFFSET;
+                    reg_file_read <= 1;
+                    reg_file_id <= `E_TYPE_REG1;
+                    pc_inc <= 1;
+                    phase <= 3'b0000;
+                end
+
+                /* LDA Instruction */
+                4'b0110: begin
+                    clear_control_lines();
+                    alu_write <= 1;
+                    dout <= {{4{`SIGN_BIT}}, `T_TYPE_IMM};
+                    pc_inc <= 1;
+                    phase <= 3'b000;
+                end
+                
+                /* LDMPTR Instruction */
+                4'b0111: begin
+                    clear_control_lines();
+                    mptr_write <= 1;
+                    dout <= {4'h0, `T_TYPE_IMM};
+                    pc_inc <= 1;
+                    phase <= 3'b000;
+                end
+
+                /* LDMPTRU Instruction */
+                4'b1000: begin
+                    clear_control_lines();
+                    mptr_writeu <= 1;
+                    dout <= {4'h0, `T_TYPE_IMM};
+                    pc_inc <= 1;
+                    phase <= 3'b000;
+                end
+
+                /* R-type Opcode2 Instructions */
+                4'b1100: begin
+                    case(`R_TYPE_OPCODE2)
+                        /* LDAU Instruction */
+                        6'b111011: begin
+                            clear_control_lines();
+                            alu_writeu <= 1;
+                            dout <= {{10{1'b0}}, `R_TYPE_IMM};
+                            pc_inc <= 1;
+                            phase <= 3'b000;
+                        end
+                    
+                    endcase
                 end
 
             endcase

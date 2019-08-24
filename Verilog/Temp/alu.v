@@ -3,14 +3,14 @@ module alu_tb();
     /* Inputs */
     reg [4:0] opcode;
     reg [15:0] operand;
-    reg read, write, clk;
+    reg read, write, writeu, clk;
     /* Outputs */
     wire [15:0] accout;
     wire flag;
 
     /* Instantiate module */
     alu U1(
-        opcode, operand, read, write, clk, accout, flag
+        opcode, operand, read, write, writeu, clk, accout, flag
     );
 
     /* Test module */
@@ -22,6 +22,7 @@ module alu_tb();
         opcode = 5'h00;
         operand = 16'h0000;
         write = 0;
+        writeu = 0;
         read = 0;
         #1;
 
