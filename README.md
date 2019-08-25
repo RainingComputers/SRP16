@@ -11,7 +11,6 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 - [ ] Assembler
 - [ ] ISA Simulator using [Verilator](https://www.veripool.org/wiki/verilator)
 - [ ] Interrupts and Timers
-- [ ] Pipelined Implementation
 
 ## ISA Quick Reference
 ### Architecture:
