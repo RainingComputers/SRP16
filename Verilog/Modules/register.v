@@ -1,7 +1,7 @@
-module register(din, read, write, writeu, clk, dout);
+module register(din, read, write, clk, dout);
     /* Input ports */
     input [15:0] din;
-    input read, write, writeu, clk;
+    input read, write, clk;
 
     /* Output ports */
     output [15:0] dout;
@@ -18,8 +18,6 @@ module register(din, read, write, writeu, clk, dout);
         /* Write to register if write is high */
         if(write)
             data <= din;
-        else if(writeu)
-            data[15:8] <= din[7:0];
     end
 
 endmodule

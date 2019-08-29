@@ -21,6 +21,7 @@ module SRP16_processor(clk, reset);
     wire sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec;
     wire [4:0] alu_opcode;
     wire alu_read, alu_write, alu_writeu, flag;
+    wire temp_reg_read, temp_reg_write;
 
     /* ALU Flag Output */
     wire alu_flag;
@@ -43,6 +44,10 @@ module SRP16_processor(clk, reset);
         reg_file_write, reg_file_writu,
         reg_file_inc, reg_file_dec,
         reg_file_id, clk, data_bus
+    );
+
+    register TEMP_REG(
+        data_bus, temp_reg_read, temp_reg_write, clk, data_bus
     );
 
     memory_file_load MEMORY(
@@ -80,6 +85,7 @@ module SRP16_processor(clk, reset);
         mptr_read_dbus, mptr_write, mptr_writeu,
         sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec,
         alu_opcode, alu_read, alu_write, alu_writeu, flag,
+        temp_reg_read, temp_reg_write,
         data_bus
     );
 
