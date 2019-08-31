@@ -297,12 +297,14 @@ module control_decode(reset, instruction, clk,
                     endcase
                 end
 
+                /* E-type Opcode1=1101 Instructions */
+                4'b1101: begin
+                    alu_opcode <= {1'b0, `E_TYPE_OPCODE2};
+                    dout <= {{8{`SIGN_BIT}}, `E_TYPE_IMM};
+                    pc_inc <= 1;
+                    phase <= 3'b000;
+                end
             endcase
         end
-
-
     end
-
-
-
 endmodule
