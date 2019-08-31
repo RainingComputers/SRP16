@@ -8,7 +8,7 @@ module sim_core_tb();
 
     /* Variables */
     integer i = 0;
-    integer n_cycles = 29;
+    integer n_cycles = 100;
 
     /* Begin testing */
     initial begin

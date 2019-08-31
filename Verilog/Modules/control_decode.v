@@ -266,6 +266,23 @@ module control_decode(reset, instruction, clk,
                     end
                 end
 
+                /* SJMP Instruction */
+                4'b1010: begin
+                    pc_offset <= 1;
+                    dout <= {{4{`SIGN_BIT}}, `T_TYPE_OFFSET};
+                    phase <= 3'b000;
+                end
+
+                /* SJMPF Instruction */
+                4'b1011: begin
+                    if(flag) begin
+                        pc_offset <= 1;
+                        dout <= {{4{`SIGN_BIT}}, `T_TYPE_OFFSET};
+                    end
+                    else pc_inc <= 1;
+                    phase <= 3'b000;
+                end
+
                 /* R-type Opcode1=1100 Instructions */
                 4'b1100: begin
                     case(`R_TYPE_OPCODE2)
