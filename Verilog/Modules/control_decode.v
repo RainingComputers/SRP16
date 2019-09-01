@@ -330,9 +330,17 @@ module control_decode(reset, instruction, clk,
                     end
                     /* INC Instruction */
                     else if(`R_TYPE_OPCODE2 == 6'b111110) begin
+                        reg_file_id <= `R_TYPE_REG2;
+                        reg_file_inc <= 1;
+                        phase <= 3'b000;
+                        pc_inc <= 1;
                     end
                     /* DEC Instruction */
                     else if(`R_TYPE_OPCODE2 == 6'b111111) begin
+                        reg_file_id <= `R_TYPE_REG2;
+                        reg_file_dec <= 1;
+                        phase <= 3'b000;
+                        pc_inc <= 1;
                     end
                     /* Immediate Shift Instructions */
                     else if(`R_TYPE_OPCODE2 > 6'b011111) begin
