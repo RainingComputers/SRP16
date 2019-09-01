@@ -3,13 +3,13 @@ SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers.
 
 ## Project Status
 ### Specification
-SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/master/Documentation/SRP16%20ISA%20Specification.pdf)
+SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/master/Documentation/SRP16%20ISA%20Specification.pdf)
 
 ### Roadmap
 - [x] ISA Specification
 - [ ] Reference Implementation in Verilog
 - [ ] Assembler
-- [ ] ISA Simulator using [Verilator](https://www.veripool.org/wiki/verilator)
+- [ ] ISA Simulator
 - [ ] Interrupts and Timers
 
 ## ISA Quick Reference
@@ -215,17 +215,6 @@ SRP16 ISA Specifaction [.pdf](https://github.com/RainingComputers/SRP16/raw/mast
 			⟵ SP-1</font></font></p>
 			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">memory[SP]
 			⟵ Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">PUSH PC</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">SP
-			⟵ SP-1</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">memory[SP]
-			⟵ PC+4</font></font></p>
 		</td>
 	</tr>
 	<tr valign="top">
