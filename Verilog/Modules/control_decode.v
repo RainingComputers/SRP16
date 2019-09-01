@@ -344,9 +344,18 @@ module control_decode(reset, instruction, clk,
                     end
                     /* Immediate Shift Instructions */
                     else if(`R_TYPE_OPCODE2 > 6'b011111) begin
+                        dout <= {6'b000000, `R_TYPE_IMM};
+                        alu_opcode <= `R_TYPE_OPCODE2;
+                        phase <= 3'b000;
+                        pc_inc <= 1;
                     end
                     /* R-type Arithmatic and Compare Instruction */
                     else begin
+                        reg_file_id <= `R_TYPE_REG2;
+                        reg_file_read <= 1;
+                        alu_opcode <= `R_TYPE_OPCODE2;
+                        phase <= 3'b000;
+                        pc_inc <= 1;
                     end
                 end
 
