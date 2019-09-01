@@ -18,13 +18,13 @@ module control_decode(reset, instruction, clk,
     pc_read, pc_readplusone, pc_readplusfour, pc_write, pc_offset, pc_inc,
     ir_write, ir_writeu,
     reg_file_read, reg_file_readu,
-    reg_file_write, reg_file_writu, 
+    reg_file_write, reg_file_writeu, 
     reg_file_inc, reg_file_dec,
     reg_file_id,
     mem_read, mem_write,
     mptr_offset, mptr_read_abus, mptr_read_abusplus,
     mptr_read_dbus, mptr_write, mptr_writeu,
-    sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec,
+    sp_read_dbus, sp_write, sp_pop, sp_push,
     alu_opcode, alu_read, alu_write, alu_writeu, flag, 
     temp_reg_read, temp_reg_write,
     dout
@@ -38,14 +38,14 @@ module control_decode(reset, instruction, clk,
     output reg pc_read, pc_readplusone, pc_readplusfour, pc_write, pc_offset, pc_inc;
     output reg ir_write, ir_writeu;
     output reg reg_file_read, reg_file_readu;
-    output reg reg_file_write, reg_file_writu; 
+    output reg reg_file_write, reg_file_writeu; 
     output reg reg_file_inc, reg_file_dec;
     output reg [5:0] reg_file_id;
     output reg mem_read, mem_write;
     output reg [11:0] mptr_offset;
     output reg mptr_read_abus, mptr_read_abusplus; 
     output reg mptr_read_dbus, mptr_write, mptr_writeu;
-    output reg sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec;
+    output reg sp_read_dbus, sp_write, sp_pop, sp_push;
     output reg [4:0] alu_opcode;
     output reg alu_read, alu_write, alu_writeu;
     output reg temp_reg_read, temp_reg_write;
@@ -60,14 +60,14 @@ module control_decode(reset, instruction, clk,
         {pc_read, pc_readplusone, pc_readplusfour, pc_write, pc_offset, pc_inc} <= 6'b000000;
         {ir_write, ir_writeu} <= 2'b00;
         {reg_file_read, reg_file_readu} <= 2'b00;
-        {reg_file_write, reg_file_writu} <= 2'b00;
+        {reg_file_write, reg_file_writeu} <= 2'b00;
         {reg_file_inc, reg_file_dec} <= 2'b00;
         reg_file_id <= 5'b00000;
         {mem_read, mem_write} <= 2'b00;
         mptr_offset <= 12'h000;
         {mptr_read_abus, mptr_read_abusplus} <= 2'b00;
         {mptr_read_dbus, mptr_write, mptr_writeu} <= 3'b000;
-        {sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec} <= 5'b00000;
+        {sp_read_dbus, sp_write, sp_pop, sp_push} <= 4'b0000;
         alu_opcode <= 4'b0000;
         {alu_read, alu_write, alu_writeu} <= 3'b000;
         {temp_reg_read, temp_reg_write} <= 2'b00;
@@ -113,7 +113,7 @@ module control_decode(reset, instruction, clk,
                 end
                 /* LDRU Instruction */
                 4'b0001: begin
-                    reg_file_writu <= 1;
+                    reg_file_writeu <= 1;
                     reg_file_id <= `E_TYPE_REG1;
                     dout <= {8'h00, `E_TYPE_IMM};
                     pc_inc <= 1;
@@ -133,7 +133,7 @@ module control_decode(reset, instruction, clk,
                         mptr_read_abusplus <= 1;
                         mem_read <= 1;
                         mptr_offset <= `E_TYPE_OFFSET;
-                        reg_file_writu <= 1;
+                        reg_file_writeu <= 1;
                         reg_file_id <= `E_TYPE_REG1;
                         pc_inc <= 1;
                         phase <= 3'b000;
@@ -285,16 +285,61 @@ module control_decode(reset, instruction, clk,
 
                 /* R-type Opcode1=1100 Instructions */
                 4'b1100: begin
-                    case(`R_TYPE_OPCODE2)
-                        /* LDAU Instruction */
-                        6'b111011: begin
+                    /* LDAU Instruction */
+                    if(`R_TYPE_OPCODE2 == 6'b111011) begin    
                             alu_writeu <= 1;
                             dout <= {{10{1'b0}}, `R_TYPE_IMM};
                             pc_inc <= 1;
                             phase <= 3'b000;
+                    end
+                    /* POP Instruction */
+                    else if(`R_TYPE_OPCODE2 == 6'b111100) begin
+                        if(phase == 3'b010) begin
+                            reg_file_id <= `R_TYPE_REG2;
+                            reg_file_write <= 1;
+                            sp_pop <= 1;
+                            mem_read <= 1;
+                            phase <= phase + 3'b001;
                         end
-                    
-                    endcase
+                        else if(phase == 3'b011) begin
+                            reg_file_id <= `R_TYPE_REG2;
+                            reg_file_writeu <= 1;
+                            sp_pop <= 1;
+                            mem_read <= 1;
+                            phase <= 3'b000;
+                            pc_inc <= 1;
+                        end
+                    end
+                    /* PUSH Instruction */
+                    else if(`R_TYPE_OPCODE2 == 6'b111101) begin
+                        if(phase == 3'b010) begin
+                            reg_file_id <= `R_TYPE_REG2;
+                            reg_file_readu <= 1;
+                            sp_push <= 1;
+                            mem_write <= 1;
+                            phase <= phase + 3'b001;
+                        end
+                        else if(phase == 3'b011) begin
+                            reg_file_id <= `R_TYPE_REG2;
+                            reg_file_read <= 1;
+                            sp_push <= 1;
+                            mem_write <= 1;
+                            phase <= 3'b000;
+                            pc_inc <= 1;
+                        end
+                    end
+                    /* INC Instruction */
+                    else if(`R_TYPE_OPCODE2 == 6'b111110) begin
+                    end
+                    /* DEC Instruction */
+                    else if(`R_TYPE_OPCODE2 == 6'b111111) begin
+                    end
+                    /* Immediate Shift Instructions */
+                    else if(`R_TYPE_OPCODE2 > 6'b011111) begin
+                    end
+                    /* R-type Arithmatic and Compare Instruction */
+                    else begin
+                    end
                 end
 
                 /* E-type Opcode1=1101 Instructions */

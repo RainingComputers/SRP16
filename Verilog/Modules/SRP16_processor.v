@@ -11,14 +11,14 @@ module SRP16_processor(clk, reset);
     wire pc_read, pc_readplusone, pc_readplusfour, pc_write, pc_offset, pc_inc;
     wire ir_write, ir_writeu;
     wire reg_file_read, reg_file_readu;
-    wire reg_file_write, reg_file_writu; 
+    wire reg_file_write, reg_file_writeu; 
     wire reg_file_inc, reg_file_dec;
     wire [5:0] reg_file_id;
     wire mem_read, mem_write;
     wire [11:0] mptr_offset;
     wire mptr_read_abus, mptr_read_abusplus; 
     wire mptr_read_dbus, mptr_write, mptr_writeu;
-    wire sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec;
+    wire sp_read_dbus, sp_write, sp_pop, sp_push;
     wire [4:0] alu_opcode;
     wire alu_read, alu_write, alu_writeu, flag;
     wire temp_reg_read, temp_reg_write;
@@ -41,7 +41,7 @@ module SRP16_processor(clk, reset);
 
     register_file REG_FILE(
         data_bus, reg_file_read, reg_file_readu,
-        reg_file_write, reg_file_writu,
+        reg_file_write, reg_file_writeu,
         reg_file_inc, reg_file_dec,
         reg_file_id, clk, data_bus
     );
@@ -62,8 +62,8 @@ module SRP16_processor(clk, reset);
     );
 
     sp SP(
-        data_bus, sp_read_abus, sp_read_dbus, sp_write, sp_inc,
-        sp_dec, clk, address_bus, data_bus
+        data_bus, sp_read_dbus, sp_write, sp_pop,
+        sp_push, clk, address_bus, data_bus, reset
     );
 
     alu ALU(
@@ -77,13 +77,13 @@ module SRP16_processor(clk, reset);
         pc_read, pc_readplusone, pc_readplusfour, pc_write, pc_offset, pc_inc,
         ir_write, ir_writeu,
         reg_file_read, reg_file_readu,
-        reg_file_write, reg_file_writu, 
+        reg_file_write, reg_file_writeu, 
         reg_file_inc, reg_file_dec,
         reg_file_id,
         mem_read, mem_write,
         mptr_offset, mptr_read_abus, mptr_read_abusplus,
         mptr_read_dbus, mptr_write, mptr_writeu,
-        sp_read_abus, sp_read_dbus, sp_write, sp_inc, sp_dec,
+        sp_read_dbus, sp_write, sp_pop, sp_push,
         alu_opcode, alu_read, alu_write, alu_writeu, flag,
         temp_reg_read, temp_reg_write,
         data_bus
