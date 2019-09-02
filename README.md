@@ -8,17 +8,12 @@ SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/ma
 ### Roadmap
 - [x] ISA Specification
 - [ ] Reference Implementation in Verilog
+- [ ] Reference Implementation in Lattice IceStick
 - [ ] Assembler
 - [ ] ISA Simulator
 - [ ] Interrupts and Timers
 
 ## ISA Quick Reference
-### Architecture:
-
-<p align="center">
-    <img src="https://raw.githubusercontent.com/RainingComputers/SRP16/master/Documentation/SRP16%20Architecture.png"/>
-</p>
-
 ### Registers:
 + General Purpose Registers R0-R15 (Accessible by Load-Store Instructions)
 + General Purpose Registers R16-R31 (Not Accessible by Load-Store Instructions)
