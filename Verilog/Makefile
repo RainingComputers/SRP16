@@ -1,23 +1,22 @@
 .PHONY : help
 help :
-	@echo "test file=FILENAME 	: Test verilog file/module."
-	@echo "clean       		: Remove auto-generated files."
-	@echo "test_sim_core		: Compile SRP16_processor.v for simulator."
-	@echo "sim_core_tb 			: Start processor simulator testbench"
-
-test:
-	iverilog -o test.o Modules/$(file) Temp/$(file)
-	./test.o
-	gtkwave test.vcd
-
-test_sim_core:
-	iverilog -o test.o Modules/SRP16_processor.v Modules/pc.v Modules/ir.v Modules/register_file.v Modules/memory_file_load.v Modules/mptr.v Modules/sp.v Modules/alu.v Modules/control_decode.v
+	@echo "-clean"
+	@echo "      Remove auto-generated files."
+	@echo "-sim_core_tb ncycles=no_cycles image=path [dumpaddr=addr] [dumpsize=no_bytes]"
+	@echo "      Start processor simulator testbench and view timing graphs."
 
 sim_core_tb:
-	iverilog -o test.o Modules/SRP16_processor.v Modules/pc.v Modules/ir.v Modules/register_file.v Modules/memory_file_load.v Modules/mptr.v Modules/sp.v Modules/alu.v Modules/control_decode.v Modules/register.v Temp/core_test.v
-	./test.o
+	@[ "${ncycles}" ] || ( echo "USAGE-ERROR: Command line argument 'ncycles' is not specified"; exit 1 )
+	@[ "${image}" ] || ( echo "USAGE-ERROR: Command line argument 'image' is not specified"; exit 1 )
+	rm -f test.vcd
+	iverilog -o test.vvp Modules/pc.v Modules/ir.v Modules/register_file.v \
+		Modules/memory_file_load.v Modules/mptr.v Modules/sp.v Modules/alu.v \
+		Modules/control_decode.v Modules/register.v Modules/SRP16_core.v \
+		Testbenches/Icarus/processor.v Testbenches/Icarus/core_test.v
+	vvp test.vvp +ncycles=$(ncycles) +image=$(image) +dumpaddr=$(dumpaddr) +dumpsize=$(dumpsize)
 	gtkwave test.vcd
 
 clean:
 	rm -f *.vcd
+	rm -f *.vvp
 	rm -f *.o

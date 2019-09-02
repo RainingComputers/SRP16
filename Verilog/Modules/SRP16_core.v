@@ -1,11 +1,17 @@
-module SRP16_processor(clk, reset);
+module SRP16_core(
+    clk, reset, address_bus, data_bus, 
+    mem_read, mem_write
+);
     /* Input Ports */
     input clk;
     input reset;
 
     /* Processor Busses */
-    wire [15:0] data_bus;
-    wire [15:0] address_bus;
+    output wire [15:0] address_bus;
+    inout wire [15:0] data_bus;
+
+    /* Memory Control Lines */
+    output wire mem_read, mem_write;
 
     /* Control Lines */
     wire pc_read, pc_readplusone, pc_readplusfour, pc_write, pc_offset, pc_inc;
@@ -14,7 +20,6 @@ module SRP16_processor(clk, reset);
     wire reg_file_write, reg_file_writeu; 
     wire reg_file_inc, reg_file_dec;
     wire [5:0] reg_file_id;
-    wire mem_read, mem_write;
     wire [11:0] mptr_offset;
     wire mptr_read_abus, mptr_read_abusplus; 
     wire mptr_read_dbus, mptr_write, mptr_writeu;
@@ -48,11 +53,6 @@ module SRP16_processor(clk, reset);
 
     register TEMP_REG(
         data_bus, temp_reg_read, temp_reg_write, clk, data_bus
-    );
-
-    memory_file_load MEMORY(
-        data_bus[7:0], address_bus, mem_read, mem_write, 
-        clk, data_bus
     );
 
     mptr MPTR(
