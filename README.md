@@ -7,8 +7,8 @@ SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/ma
 
 ### Roadmap
 - [x] ISA Specification
-- [ ] Reference Implementation in Verilog
-- [ ] Reference Implementation in Lattice IceStick
+- [ ] Reference Implementation in Icarus Verilog
+- [ ] Reference Implementation in Lattice iCEstick
 - [ ] Assembler
 - [ ] ISA Simulator
 - [ ] Interrupts and Timers
