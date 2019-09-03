@@ -7,7 +7,7 @@ SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/ma
 
 ### Roadmap
 - [x] ISA Specification
-- [ ] Reference Implementation in Icarus Verilog
+- [x] Reference Implementation in Icarus Verilog
 - [ ] Reference Implementation in Lattice iCEstick
 - [ ] Assembler
 - [ ] ISA Simulator
@@ -23,470 +23,55 @@ SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/ma
 + Program Counter or PC (R63)
 
 ### Instructions:
-<table align="center">
-	<colgroup><col width="316">
-	<col width="309">
-	</colgroup><tbody><tr valign="top">
-		<td style="border-top: 1px solid #999999; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0.1cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3"><b>Instruction</b></font></font></p>
-		</td>
-		<td style="border: 1px solid #999999; padding: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3"><b>Operation</b></font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">LDR
-			Rx, 8-bit-signed-immediate</font></font></p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx
-			⟵ immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">LDRU
-			Rx, 8-bit-unsigned-immediate</font></font></p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx[15:8]
-			⟵ immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">LD@MPTR
-			Rx, 8-bit-signed-offset</font></font></p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx
-			⟵ memory[MPTR]</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">MPTR
-			⟵ MPTR+offset</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western"><font style="font-size: 12pt" size="3">ST@MPTR
-			Rx, 8-bit-signed-offset</font></p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">memory[MPTR]
-			⟵ Rx</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">MPTR
-			⟵ MPTR+offset</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">LDB@MPTR Rx, 8-bit-signed-offset</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx[7:0]
-			⟵ memory[MPTR]</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">MPTR
-			⟵ MPTR+offset</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">STB@MPTR Rx, 8-bit-signed-offset</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">memory[MPTR]
-			⟵ Rx[7:0]</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">MPTR
-			⟵ MPTR+offset</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">LDA 12-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">LDAU 6-bit-unsigned-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A[15:12]
-			⟵ immediate[3:0]</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">LDMPTR 12-bit-unsigned-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">MPTR
-			⟵ immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">LDMPTRU 12-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">MPTR[15:12]
-			⟵ immediate[3:0]</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">MOV Rx, Ry</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx
-			⟵ Ry</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">MOV Rx, PC</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx
-			⟵ PC+4</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">JMP Ry or MOV PC, Ry</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">PC
-			⟵ Ry</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SJMP 12-bit-signed-offset</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">PC
-			⟵ PC+offset</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SJMPF 12-bit-signed-offset</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">if(flag):
-			PC ⟵ PC+offset</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">NOTF</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">flag
-			⟵ !flag</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">POP Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx
-			⟵ memory[SP]</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">SP
-			⟵ SP+1</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">PUSH Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">SP
-			⟵ SP-1</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">memory[SP]
-			⟵ Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">INC Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx
-			⟵ Rx+1</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">DEC Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">Rx
-			⟵ Rx-1</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">ADDI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A+immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">ADCI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A+immediate+carry</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SBBI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A-immediate-carry</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">ANDI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&amp;immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">ORI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A|immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">XORI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A^immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SLAI 6-bit-unsigned-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&lt;&lt;&lt;immediate </font></font>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SRAI 6-bit-unsigned-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&gt;&gt;&gt;immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SLLI 6-bit-unsigned-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&lt;&lt;immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SRLI 6-bit-unsigned-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&gt;&gt;immediate</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">ADD Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A+Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SUB Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A-Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">ADC Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A+Rx+carry</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SBB Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A-Rx-carry</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">AND Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&amp;Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">OR Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A|Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">XOR Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A^Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SLA Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&lt;&lt;&lt;Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SRA Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&gt;&gt;&gt;Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SLL Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&lt;&lt;Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">SRL Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">A
-			⟵ A&gt;&gt;Rx</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">CLI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">if(A&lt;immediate):
-			flag ⟵ 1</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">else:
-			flag ⟵ 0</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">CGI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">if(A&gt;immediate):
-			flag ⟵ 1</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">else:
-			flag ⟵ 0</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">CEI 8-bit-signed-immediate</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">if(A==immediate):
-			flag ⟵ 1</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">else:
-			flag ⟵ 0</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">CL Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">if(A&lt;Rx):
-			flag ⟵ 1</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">else:
-			flag ⟵ 0</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">CG Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">if(A&gt;Rx):
-			flag ⟵ 1</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">else:
-			flag ⟵ 0</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="316">
-			<p class="western">CE Rx</p>
-		</td>
-		<td style="border-top: none; border-bottom: 1px solid #999999; border-left: 1px solid #999999; border-right: 1px solid #999999; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="309">
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">if(A==Rx):
-			flag ⟵ 1</font></font></p>
-			<p class="western"><font face="Noto Mono"><font style="font-size: 12pt" size="3">else:
-			flag ⟵ 0</font></font></p>
-		</td>
-	</tr>
-</tbody></table>
+| Instruction                       | Operation											|
+| --------------------------------- | ------------------------------------------------- |
+| LDR Rx, 8-bit-signed-immediate    | Rx ⟵ immediate									|
+| LDRU Rx, 8-bit-unsigned-immediate | Rx[15:8] ⟵ immediate								|
+| LD@MPTR Rx, 8-bit-signed-offset   | Rx ⟵ memory[MPTR]	<br> MPTR ⟵ MPTR+offset			|
+| ST@MPTR Rx, 8-bit-signed-offset   | memory[MPTR] ⟵ Rx	<br> MPTR ⟵ MPTR+offset			|
+| LDB@MPTR Rx, 8-bit-signed-offset  | Rx[7:0] ⟵ memory[MPTR] <br> MPTR ⟵ MPTR+offset	|
+| STB@MPTR Rx, 8-bit-signed-offset  | memory[MPTR] ⟵ Rx[7:0] <br> MPTR ⟵ MPTR+offset	|
+| LDA 12-bit-signed-immediate       | A ⟵ immediate										|
+| LDAU 6-bit-unsigned-immediate     | A[15:12] ⟵ immediate[3:0]							|
+| LDMPTR 12-bit-unsigned-immediate  | MPTR ⟵ immediate									|
+| LDMPTRU 12-bit-signed-immediate   | MPTR[15:12] ⟵ immediate[3:0]						|
+| MOV Rx, Ry                        | Rx ⟵ Ry											|
+| MOV Rx, PC                        | Rx ⟵ PC+4											|
+| JMP Ry or MOV PC, Ry              | PC ⟵ Ry											|
+| SJMP 12-bit-signed-offset         | PC ⟵ PC+offset									|
+| SJMPF 12-bit-signed-offset        | if(flag): PC ⟵ PC+offset							|
+| NOTF                              | flag ⟵ !flag										|
+| POP Rx                            | Rx ⟵ memory[SP] <br> SP ⟵ SP+1					|
+| PUSH Rx                           | SP ⟵ SP-1	<br> memory[SP] ⟵ Rx					|
+| INC Rx                            | Rx ⟵ Rx+1											|
+| DEC Rx                            | Rx ⟵ Rx-1											|
+| ADDI 8-bit-signed-immediate       | A ⟵ A+immediate									|
+| ADCI 8-bit-signed-immediate       | A ⟵ A+immediate+carry								|
+| SBBI 8-bit-signed-immediate       | A ⟵ A-immediate-carry								|
+| ANDI 8-bit-signed-immediate       | A ⟵ A&immediate									|
+| ORI 8-bit-signed-immediate        | A ⟵ A|immediate									|
+| XORI 8-bit-signed-immediate       | A ⟵ A^immediate									|
+| SLAI 6-bit-unsigned-immediate     | A ⟵ A<<<immediate									|
+| SRAI 6-bit-unsigned-immediate     | A ⟵ A>>>immediate									|
+| SLLI 6-bit-unsigned-immediate     | A ⟵ A<<immediate									|
+| SRLI 6-bit-unsigned-immediate     | A ⟵ A>>immediate									|
+| ADD Rx                            | A ⟵ A+Rx											|
+| SUB Rx                            | A ⟵ A-Rx											|
+| ADC Rx                            | A ⟵ A+Rx+carry									|
+| SBB Rx                            | A ⟵ A-Rx-carry									|
+| AND Rx                            | A ⟵ A&Rx											|				
+| OR Rx                             | A ⟵ A|Rx											|				
+| XOR Rx                            | A ⟵ A^Rx											|				
+| SLA Rx                            | A ⟵ A<<<Rx										|				
+| SRA Rx                            | A ⟵ A>>>Rx										|				
+| SLL Rx                            | A ⟵ A<<Rx											|
+| SRL Rx                            | A ⟵ A>>Rx											|
+| CLI 8-bit-signed-immediate        | if(A<immediate): flag ⟵ 1 <br> else: flag ⟵ 0		|
+| CGI 8-bit-signed-immediate        | if(A>immediate): flag ⟵ 1 <br> else: flag ⟵ 0		|
+| CEI 8-bit-signed-immediate        | if(A==immediate): flag ⟵ 1 <br> else: flag ⟵ 0	|
+| CL Rx                             | if(A<Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
+| CG Rx                             | if(A>Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
+| CE Rx                             | if(A==Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
 
 ## License
 + MIT License. See: https://github.com/RainingComputers/SRP16/blob/master/LICENSE.md
