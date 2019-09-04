@@ -11,7 +11,7 @@ SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/ma
 - [ ] Reference Implementation in Lattice iCEstick
 - [ ] Assembler
 - [ ] ISA Simulator
-- [ ] Interrupts and Timers
+- [ ] I/O, Interrupts and Timers
 
 ## ISA Quick Reference
 ### Registers:
