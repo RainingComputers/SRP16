@@ -12,6 +12,9 @@ module sim_core_tb();
     integer dump_start;
     integer dump_size;
 
+    /* String to hold dump file name */
+    reg [4096:0] dump_file;
+
     /* Begin testing */
     initial begin
 
@@ -31,8 +34,13 @@ module sim_core_tb();
             dump_size = 0;
         end
 
+        /* Get dumpfile file path from command line arguments */
+        if (! $value$plusargs("vcdfile=%s", dump_file)) begin
+           $display("USAGE-ERROR: Specify output vcd dump file using +vcdfile");
+           $finish;
+        end
         /* Dumpfile */
-        $dumpfile("dump.vcd");
+        $dumpfile(dump_file);
         $dumpvars(0, sim_core_tb);
 
         /* Dump registers */
