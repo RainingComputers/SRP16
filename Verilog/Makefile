@@ -9,12 +9,12 @@ sim_core_tb:
 	@[ "${ncycles}" ] || ( echo "USAGE-ERROR: Command line argument 'ncycles' is not specified"; exit 1 )
 	@[ "${image}" ] || ( echo "USAGE-ERROR: Command line argument 'image' is not specified"; exit 1 )
 	rm -f test.vcd
-	iverilog -o test.vvp Modules/pc.v Modules/ir.v Modules/register_file.v \
+	iverilog -o SRP16sim.vvp Modules/pc.v Modules/ir.v Modules/register_file.v \
 		Modules/memory_file_load.v Modules/mptr.v Modules/sp.v Modules/alu.v \
 		Modules/control_decode.v Modules/register.v Modules/SRP16_core.v \
 		Testbenches/Icarus/processor.v Testbenches/Icarus/core_test.v
-	vvp test.vvp +ncycles=$(ncycles) +image=$(image) +dumpaddr=$(dumpaddr) +dumpsize=$(dumpsize)
-	gtkwave test.vcd
+	./SRP16sim.vvp +ncycles=$(ncycles) +image=$(image) +dumpaddr=$(dumpaddr) +dumpsize=$(dumpsize)
+	gtkwave dump.vcd
 
 clean:
 	rm -f *.vcd

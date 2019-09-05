@@ -32,7 +32,7 @@ module sim_core_tb();
         end
 
         /* Dumpfile */
-        $dumpfile("test.vcd");
+        $dumpfile("dump.vcd");
         $dumpvars(0, sim_core_tb);
 
         /* Dump registers */
