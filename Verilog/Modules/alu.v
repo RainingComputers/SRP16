@@ -56,59 +56,38 @@ module alu(opcode, operand, read, write, writeu, clk, accout, flag);
         /* Check for opcode and perform arithmatic or logic operation */
         case(opcode)
             /* Add */
-            `ADD: begin
-                accumulator_reg <= accumulator + operand;
-            end 
+            `ADD: accumulator_reg <= accumulator + operand;
             
             /* Add with carry */
-            `ADC: begin
-                accumulator_reg <= accumulator + operand + carry;
-            end 
+            `ADC: accumulator_reg <= accumulator + operand + carry;
             
             /* Substract */
-            `SUB: begin
-                accumulator_reg <= accumulator - operand;
-            end
+            `SUB: accumulator_reg <= accumulator - operand;
 
             /* Substract with borrow */
-            `SBB: begin
-                accumulator_reg <= accumulator - operand - carry;
-            end
+            `SBB: accumulator_reg <= accumulator - operand - carry;
 
             /* Shift left arithmatic */
-            `SLA: begin
-                accumulator_reg <= $signed(accumulator) <<< operand;
-            end
+            `SLA: accumulator_reg <= $signed(accumulator) <<< operand;
 
             /* Shift right arithmatic */
-            `SRA: begin
-                accumulator_reg <= $signed(accumulator) >>> operand;
-            end
+            `SRA: accumulator_reg <= $signed(accumulator) >>> operand;
 
             /* Shift left logical */
-            `SLL: begin
-                accumulator_reg <= accumulator << operand;
-            end
+            `SLL: accumulator_reg <= accumulator << operand;
 
             /* Shift right logical */
-            `SRL: begin
-                accumulator_reg <= accumulator >> operand;
-            end
+            `SRL: accumulator_reg <= accumulator >> operand;
             
             /* Bitwise AND */
-            `AND: begin
-                accumulator_reg <= accumulator & operand;
-            end
+            `AND: accumulator_reg <= accumulator & operand;
+            
 
             /* Bitwise OR */
-            `OR : begin
-                accumulator_reg <= accumulator | operand;
-            end
+            `OR : accumulator_reg <= accumulator | operand;
 
             /* Bitwise XOR */
-            `XOR: begin
-                accumulator_reg <= accumulator ^ operand;
-            end
+            `XOR: accumulator_reg <= accumulator ^ operand;
 
             /* Compare less than */
             `CL: begin
