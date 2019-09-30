@@ -111,16 +111,23 @@ namespace syntax
         else return -1;
     }
 
-    bool immediate_to_int(const std::string operand, int& num)
+    bool immediate_to_int(const std::string& operand, int& num)
     {
         /* Syntax check */
         if(operand[0] == '0' && operand[1] == 'x')
-            for(char i: operand)
-                if(!(isdigit(i) || (i>='a' && i<='f'))) return false;
+        {
+            for(int i=2; i<operand.length(); i++)
+            {
+                char c = operand[i];
+                if(!(isdigit(c) || (c>='a' && c<='f'))) return false;
+            }
+        }
         else
+        {
             for(int i=0; i<operand.length(); i++)
                 if(i==0 && operand[i]=='-') continue;
                 else if(!isdigit(operand[i])) return false;
+        }
 
         /* If syntax check passed, convert to int and return true */
         num = std::stoi(operand, nullptr, 0);

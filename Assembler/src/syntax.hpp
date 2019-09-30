@@ -10,6 +10,7 @@ namespace syntax
     bool tokenize(std::string&, std::string&, std::string&, std::string&, int&);
     bool check_line(const std::string&);
     int get_reg_id(const std::string&);
+    bool immediate_to_int(const std::string& operand, int& num);
 }
 
 #endif

@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
         {
             if(token_count>1)
             {
-                log::syntax_error("Too many arguments", line_no);
+                log::syntax_error("Too many operands", line_no);
                 return EXIT_FAILURE;
             }
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
         }
         else if(instruction == "mov")
         {
-            /* Get register id fro operands */
+            /* Get register id from operands */
             int register1_id = syntax::get_reg_id(first_operand);
             int register2_id = syntax::get_reg_id(second_operand);
 
@@ -93,6 +93,30 @@ int main(int argc, char *argv[])
 
             /* Build instruction */
             uint16_t inst_bin = isa::pack_rtype(0b1001, register1_id, register2_id);
+            output_file << isa::instruction_to_str(inst_bin);
+        }
+        else if(instruction == "ldr")
+        {
+            /* Get register id from first operand */
+            int register1_id = syntax::get_reg_id(first_operand);
+
+            /* If invalid register id */
+            if(register1_id<0)
+            {
+                log::syntax_error("Invalid register", line_no);
+                return EXIT_FAILURE;
+            }
+
+            /* Get immediate from operand */
+            int immediate;
+            if(!syntax::immediate_to_int(second_operand, immediate))
+            {
+                log::syntax_error("Invalid operand", line_no);
+                return EXIT_FAILURE;
+            }
+
+            /* Build instruction */
+            uint16_t inst_bin = isa::pack_etype(0, register1_id, immediate);
             output_file << isa::instruction_to_str(inst_bin);
         }
         else
