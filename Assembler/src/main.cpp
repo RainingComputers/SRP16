@@ -115,6 +115,13 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;
             }
 
+            /* Check if immediate value is in range */
+            if(!syntax::check_range_int(immediate, 8))
+            {
+                log::syntax_error("Immediate value out of range", line_no);
+                return EXIT_FAILURE;
+            }
+
             /* Build instruction */
             uint16_t inst_bin = isa::pack_etype(0, register1_id, immediate);
             output_file << isa::instruction_to_str(inst_bin);
