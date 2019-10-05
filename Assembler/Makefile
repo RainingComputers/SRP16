@@ -1,4 +1,4 @@
-.PHONY : help clean all build
+.PHONY : help clean all build dirs
 help :
 	@echo "clean"
 	@echo "      Remove auto-generated files."
@@ -13,7 +13,7 @@ EXEC_NAME = srp16asm
 # C++ compiler
 CXX ?= g++
 
-# Set C++ compiler flags and build type
+# Set C++ compiler flags, build type and build path
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
     CXXFLAGS = -g
@@ -35,15 +35,18 @@ clean:
 
 # For compiling .cpp files in src/ to .o object files in obj/
 obj/$(BUILD_TYPE)/%.o: src/%.cpp
-	mkdir -p obj/$(BUILD_TYPE)/
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# For creting directories required for linking and building executable
+dirs:
+	mkdir -p obj/$(BUILD_TYPE)/
+	mkdir -p bin/$(BUILD_TYPE)/
 
 # Linking all object files to executable 
 bin/$(BUILD_TYPE)/$(EXEC_NAME): $(OBJECTS)
-	mkdir -p bin/$(BUILD_TYPE)/
 	$(CXX) $(CXXFLAGS) -o bin/$(BUILD_TYPE)/$(EXEC_NAME) $(OBJECTS)
 
-all: bin/$(BUILD_TYPE)/$(EXEC_NAME)
+all: dirs bin/$(BUILD_TYPE)/$(EXEC_NAME) 
 
 # Build executable
 build: all
