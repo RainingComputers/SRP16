@@ -1,42 +1,49 @@
-.PHONY : help
+.PHONY : help clean all build
 help :
 	@echo "clean"
 	@echo "      Remove auto-generated files."
 	@echo "build"
-	@echo "      Build the assembler to executable."
-	@echo "debugbuild"
-	@echo "      Build debug version"
+	@echo "      Build release executable."
+	@echo "build DEBUG=1"
+	@echo "      Build executable for debugging"
 
+# Name of the executable
+EXEC_NAME = srp16asm
+
+# C++ compiler
+CXX ?= g++
+
+# Set C++ compiler flags and build type
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+    CXXFLAGS = -g
+	BUILD_TYPE = debug
+else
+    CXXFLAGS = -O3
+	BUILD_TYPE = release
+endif
+
+# Find all .cpp files in src/
+SOURCES = $(shell find src/ -name '*.cpp')
+# Set object file names, all object files are in obj/
+OBJECTS = $(SOURCES:src/%.cpp=obj/$(BUILD_TYPE)/%.o)
+
+# Remove object files and executable
 clean:
 	rm -f -r bin/
 	rm -f -r obj/
 
-obj/:
-	mkdir obj/
+# For compiling .cpp files in src/ to .o object files in obj/
+obj/$(BUILD_TYPE)/%.o: src/%.cpp
+	mkdir -p obj/$(BUILD_TYPE)/
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-bin/:
-	mkdir bin/
+# Linking all object files to executable 
+bin/$(BUILD_TYPE)/$(EXEC_NAME): $(OBJECTS)
+	mkdir -p bin/$(BUILD_TYPE)/
+	$(CXX) $(CXXFLAGS) -o bin/$(BUILD_TYPE)/$(EXEC_NAME) $(OBJECTS)
 
-obj/isa.o: src/isa.hpp src/isa.cpp obj/
-	g++ -g -c src/isa.cpp -o obj/isa.o
+all: bin/$(BUILD_TYPE)/$(EXEC_NAME)
 
-obj/syntax.o: src/syntax.hpp src/syntax.cpp obj/
-	g++ -g -c src/syntax.cpp -o obj/syntax.o
-
-obj/log.o: src/log.hpp src/log.cpp
-	g++ -g -c src/log.cpp -o obj/log.o
-
-obj/main.o: obj/syntax.o obj/isa.o obj/log.o src/main.cpp obj/
-	g++ -g -c src/main.cpp -o obj/main.o
-
-debugbuild: obj/main.o bin/
-	g++ -g -o bin/srp16asm obj/main.o obj/syntax.o obj/log.o obj/isa.o
-
-build: bin/
-	rm -f -r obj/
-	g++ -c src/syntax.cpp	
-	g++ -c src/main.cpp
-	g++ -c src/isa.cpp
-	g++ -c src/log.cpp
-	g++ -o bin/srp16asm main.o syntax.o isa.o log.o
-	rm -f *.o
+# Build executable
+build: all

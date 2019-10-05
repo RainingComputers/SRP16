@@ -6,7 +6,7 @@
         {
             "label": "asm_debugbuild",
             "type": "shell",
-            "command": "cd Assembler/; make debugbuild"
+            "command": "cd Assembler/; make build DEBUG=1"
         }
     ]
 }

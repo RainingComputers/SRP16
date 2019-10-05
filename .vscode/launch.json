@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "preLaunchTask": "asm_debugbuild",
-            "program": "${workspaceFolder}/Assembler/bin/srp16asm",
+            "program": "${workspaceFolder}/Assembler/bin/debug/srp16asm",
             "args": ["prog.asm", "prog.hex"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/Assembler",
