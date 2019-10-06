@@ -47,8 +47,7 @@ int main(int argc, char *argv[])
 
         /* Tokens */
         std::string instruction = "";
-        std::string first_operand = "";
-        std::string second_operand = "";
+        std::string str_operands[2] = {"", ""};
         int token_count = 0;
 
         /* Syntax check the line */
@@ -59,81 +58,147 @@ int main(int argc, char *argv[])
         }
 
         /* Tokenize the line */
-        if(!syntax::tokenize(line, instruction, first_operand, second_operand, 
+        if(!syntax::tokenize(line, instruction, str_operands[0], str_operands[1], 
             token_count))
         {
             log::syntax_error("", line_no);
             return EXIT_FAILURE;
         }
 
-        /* Process instruction to binary */
-        if(instruction == "notf")
+        /* Check if assembler preprocessor */
+        if(instruction == "jmp")
         {
-            if(token_count>1)
-            {
-                log::syntax_error("Too many operands", line_no);
-                return EXIT_FAILURE;
-            }
-
-            uint16_t inst_bin = isa::pack_rtype(0b1100, 0b010000, 0);            
-            output_file << isa::instruction_to_str(inst_bin);
+            /* Change JMP Ry to MOV PC, Ry */
+            instruction == "mov";
+            str_operands[1] = str_operands[0];
+            str_operands[0] = "pc";
         }
-        else if(instruction == "mov")
+
+        /* if not a preprocessor, then it is an instruction */
+        /* Check if it exists */
+        if(isa::instruction_properties.find(instruction) == isa::instruction_properties.end())
         {
-            /* Get register id from operands */
-            int register1_id = syntax::get_reg_id(first_operand);
-            int register2_id = syntax::get_reg_id(second_operand);
-
-            /* If invalid register id */
-            if(register1_id<0 || register2_id<0)
-            {
-                log::syntax_error("Invalid register", line_no);
-                return EXIT_FAILURE;
-            }
-
-            /* Build instruction */
-            uint16_t inst_bin = isa::pack_rtype(0b1001, register1_id, register2_id);
-            output_file << isa::instruction_to_str(inst_bin);
-        }
-        else if(instruction == "ldr")
-        {
-            /* Get register id from first operand */
-            int register1_id = syntax::get_reg_id(first_operand);
-
-            /* If invalid register id */
-            if(register1_id<0)
-            {
-                log::syntax_error("Invalid register", line_no);
-                return EXIT_FAILURE;
-            }
-
-            /* Get immediate from operand */
-            int immediate;
-            if(!syntax::immediate_to_int(second_operand, immediate))
-            {
-                log::syntax_error("Invalid operand", line_no);
-                return EXIT_FAILURE;
-            }
-
-            /* Check if immediate value is in range */
-            if(!syntax::check_range_int(immediate, 8))
-            {
-                log::syntax_error("Immediate value out of range", line_no);
-                return EXIT_FAILURE;
-            }
-
-            /* Build instruction */
-            uint16_t inst_bin = isa::pack_etype(0, register1_id, immediate);
-            output_file << isa::instruction_to_str(inst_bin);
-        }
-        else
-        {
-            log::syntax_error("Unknown instruction or directive", line_no);
+            log::syntax_error("Unknown instruction or preprocessor", line_no);
             return EXIT_FAILURE;
         }
 
-        /* Count address */
-        address += 2;
+        /* Get instruction properties and formats */
+        isa::property instr_property = isa::instruction_properties[instruction];
+        isa::format instr_format = isa::instruction_formats[instr_property.instruction_type];
+
+        /* Check if there are correct number of operands */
+        if(token_count-1 != instr_format.no_operands)
+        {
+            log::operand_error("Invalid number of operands", line_no);
+            return EXIT_FAILURE;
+        }
+
+        /* Process operands */
+        int immediate, regid[2];
+        for(int i=0; i<instr_format.no_operands; i++)
+        {
+            switch(instr_format.operand_type[i])
+            {
+                case isa::REGISTER:
+                case isa::GPREGISTER:
+                    regid[i] = syntax::get_reg_id(str_operands[i], instr_format.operand_type[i]);
+                    if(regid[i] < 0)
+                    {
+                        log::operand_error("Invalid register", line_no);
+                        return EXIT_FAILURE;
+                    }
+                    break;
+                case isa::IMMEDIATE:
+                    /* Convert str operand to int */
+                    if(!syntax::immediate_to_int(str_operands[i], immediate))
+                    {
+                        log::syntax_error("Invalid immediate token", line_no);                       
+                        return EXIT_FAILURE;
+                    }
+
+                    /* Check if immediate value is within range */
+                    if(!syntax::check_range_int(immediate, instr_format.immediate_size, 
+                        instr_property.immediate_type))
+                    {
+                        log::operand_error("Immediate value out of range", line_no);
+                        return EXIT_FAILURE;    
+                    }
+                    break;
+            }
+        }
+
+        /* Convert the instruction to binary instruction word */
+        uint16_t instr_word;
+        switch(instr_property.instruction_type)
+        {
+            case isa::E_TYPE_LOAD:
+                instr_word = isa::pack_etype(
+                    instr_property.opcode1,
+                    regid[0],
+                    immediate
+                );
+                break;
+            case isa::T_TYPE_LOAD:
+                instr_word = isa::pack_ttype(
+                    instr_property.opcode1,
+                    immediate
+                );
+                break;
+            case isa::R_TYPE_LOAD:
+            case isa::R_TYPE_IMM_ARITH:
+                instr_word = isa::pack_rtype(
+                    instr_property.opcode1,
+                    instr_property.opcode2,
+                    immediate
+                );
+                break;
+            case isa::R_TYPE_MOV:
+                instr_word = isa::pack_rtype(
+                    instr_property.opcode1,
+                    regid[0],
+                    regid[1]
+                );
+                break;
+            case isa::T_TYPE_JUMP:
+                instr_word = isa::pack_ttype(
+                    instr_property.opcode1,
+                    immediate
+                );
+                break;
+            case isa::R_TYPE_STACK:
+            case isa::R_TYPE_INCDEC:
+            case isa::R_TYPE_ARITH:
+            case isa::R_TYPE_CMP:
+                instr_word = isa::pack_rtype(
+                    instr_property.opcode1,
+                    instr_property.opcode2,
+                    regid[1]
+                );
+                break;
+            case isa::E_TYPE_IMM_ARITH:
+            case isa::E_TYPE_CMP_IMM:
+                instr_word = isa::pack_etype(
+                    instr_property.opcode1,
+                    instr_property.opcode2,
+                    immediate
+                );
+                break;
+            case isa::R_TYPE_FLAG:
+                instr_word = isa::pack_rtype(
+                    instr_property.opcode1,
+                    instr_property.opcode2,
+                    instr_property.opcode3
+                );
+                break;
+
+        }
+
+        /* Write instruction word to file */
+        std::string instr_word_str = isa::instruction_word_to_str(instr_word);
+        output_file << instr_word_str;
+        
+        /* Increment address */
+        address+=2;
     }
 
     /* Close files */

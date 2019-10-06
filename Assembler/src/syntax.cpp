@@ -12,8 +12,8 @@ namespace syntax
         std::string& first_operand, std::string& second_operand,
         int &token_count)
     {
-        /* Remove commas */
-        std::replace(line.begin(), line.end(), ',', ' ');
+        /* Remove commas and tabs */
+        std::replace_if(line.begin(), line.end(), [](char c)->bool{return isspace(c)||c==',';}, ' ');
         /* Extract tokens */
         token_count = 0;
         for(int i=0; i<line.length();)
@@ -76,13 +76,9 @@ namespace syntax
         }
     }
 
-    int get_reg_id(const std::string& operand)
+    int get_reg_id(const std::string& operand, bool general_purpose)
     {
-        if(operand == "a") return 60;
-        else if(operand == "mptr") return 61;
-        else if(operand == "sp") return 62;
-        else if(operand == "pc") return 63;
-        else if(operand[0] == 'r' )
+        if(operand[0] == 'r')
         {
             /* Check if valid register id */
             if(operand.length() > 3) return -1;
@@ -96,7 +92,8 @@ namespace syntax
                 int id = (operand[2]-48) + (operand[1]-48)*10;
 
                 /* Check if in range and return */
-                if(id < 64) return id;
+                if(id < 64 && !general_purpose) return id;
+                else if(id < 32) return id;
                 else return -1;
             }
             else if(operand.length() == 2)
@@ -108,6 +105,10 @@ namespace syntax
                 return (operand[1]-48);
             }
         }
+        else if(operand == "a") return 60;
+        else if(operand == "mptr") return 61;
+        else if(operand == "sp") return 62;
+        else if(operand == "pc") return 63;
         else return -1;
     }
 
@@ -134,20 +135,22 @@ namespace syntax
         return true;
     }
 
-    bool check_range_int(int num, int bits)
+    bool check_range_int(int num, int bits, bool usigned=false)
     {
-        /* Get minimum and maximum value that num can take */
-        int min = -1* (1<<bits)/2;
-        int max = (1<<bits)/2 - 1;
-
-        /* Check if within limits */
-        if(num >= min && num <= max) return true;
-        else return false;
-    }
-
-    bool check_range_uint(int num, int bits)
-    {
-        if(num < (1<<bits) && num >= 0) return true;
-        else return false;
+        if(usigned)
+        {
+            if(num < (1<<bits) && num >= 0) return true;
+            else return false;
+        }
+        else
+        {
+            /* Get minimum and maximum value that num can take */
+            int min = -1* (1<<bits)/2;
+            int max = (1<<bits)/2 - 1;
+    
+            /* Check if within limits */
+            if(num >= min && num <= max) return true;
+            else return false;
+        }
     }
 }
