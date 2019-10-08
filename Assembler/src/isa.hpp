@@ -13,16 +13,19 @@ namespace isa
     uint16_t pack_rtype(int field_0_3, int field_4_9, int field_10_15);
 
     /* Used for generating .hex file */
-    std::string instruction_word_to_str(uint16_t instruction);
+    std::string instr_word_to_str(uint16_t instr);
 
     /* Types of immediates */
     enum imm_type{SIGNED, UNSIGNED, NOIMM};
 
-    /* Instruction types */
+    /* instruction types */
     enum inst_type{E_TYPE_LOAD, T_TYPE_LOAD, R_TYPE_LOAD, R_TYPE_MOV, 
         T_TYPE_JUMP, R_TYPE_STACK, R_TYPE_INCDEC, E_TYPE_IMM_ARITH,
         R_TYPE_IMM_ARITH, R_TYPE_ARITH, E_TYPE_CMP_IMM, R_TYPE_CMP,
         R_TYPE_FLAG};
+
+    /* enum for diffrent types of operands */
+    enum oper_type{REGISTER, GPREGISTER, IMMEDIATE};
 
     /* For not applicable */
     const int NA = -1;
@@ -30,15 +33,12 @@ namespace isa
     /* struct for holding instruction properties */
     struct property
     {
-        inst_type instruction_type;
+        inst_type instr_type;
         imm_type immediate_type;
         int opcode1;
         int opcode2;
         int opcode3;
     };
-
-    /* enum for diffrent types of operands */
-    enum oper_type{REGISTER, GPREGISTER, IMMEDIATE};
     
     /* struct for holding foramt/syntax for diffrent types of instruction */
     struct format
@@ -49,10 +49,10 @@ namespace isa
     };
 
     /* Defines properties of every instruction */
-    extern std::map<std::string, property> instruction_properties;
+    extern std::map<std::string, property> instr_properties;
     
-    /* Defines instruction syntax/format for every instruction type */
-    extern format instruction_formats[];
+    /* Defines instr syntax/format for every instruction type */
+    extern format instr_formats[];
 
 }
 #endif

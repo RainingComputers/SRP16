@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         line = line.substr(0, semicolon_pos);
 
         /* Tokens */
-        std::string instruction = "";
+        std::string str_instr = "";
         std::string str_operands[2] = {"", ""};
         int token_count = 0;
 
@@ -57,34 +57,34 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;            
         }
 
-        /* Tokenize the line */
-        if(!syntax::tokenize(line, instruction, str_operands[0], str_operands[1], 
+        /* Tokenize the line to instruction and its operands */
+        if(!syntax::tokenize(line, str_instr, str_operands[0], str_operands[1], 
             token_count))
         {
             log::syntax_error("", line_no);
             return EXIT_FAILURE;
         }
 
-        /* Check if assembler preprocessor */
-        if(instruction == "jmp")
+        /* Check for assembler preprocessors */
+        if(str_instr == "jmp")
         {
             /* Change JMP Ry to MOV PC, Ry */
-            instruction == "mov";
+            str_instr == "mov";
             str_operands[1] = str_operands[0];
             str_operands[0] = "pc";
         }
 
-        /* if not a preprocessor, then it is an instruction */
+        /* if not a preprocessor, then it is a cpu instruction */
         /* Check if it exists */
-        if(isa::instruction_properties.find(instruction) == isa::instruction_properties.end())
+        if(isa::instr_properties.find(str_instr) == isa::instr_properties.end())
         {
-            log::syntax_error("Unknown instruction or preprocessor", line_no);
+            log::syntax_error("Unknown instr or preprocessor", line_no);
             return EXIT_FAILURE;
         }
 
         /* Get instruction properties and formats */
-        isa::property instr_property = isa::instruction_properties[instruction];
-        isa::format instr_format = isa::instruction_formats[instr_property.instruction_type];
+        isa::property instr_property = isa::instr_properties[str_instr];
+        isa::format instr_format = isa::instr_formats[instr_property.instr_type];
 
         /* Check if there are correct number of operands */
         if(token_count-1 != instr_format.no_operands)
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        /* Process operands */
+        /* Process string operands to register id or immediate integers */
         int immediate, regid[2];
         for(int i=0; i<instr_format.no_operands; i++)
         {
@@ -127,42 +127,34 @@ int main(int argc, char *argv[])
             }
         }
 
-        /* Convert the instruction to binary instruction word */
+        /* Create binary instruction word */
         uint16_t instr_word;
-        switch(instr_property.instruction_type)
+        switch(instr_property.instr_type)
         {
             case isa::E_TYPE_LOAD:
                 instr_word = isa::pack_etype(
-                    instr_property.opcode1,
-                    regid[0],
-                    immediate
+                    instr_property.opcode1, regid[0], immediate
                 );
                 break;
             case isa::T_TYPE_LOAD:
                 instr_word = isa::pack_ttype(
-                    instr_property.opcode1,
-                    immediate
+                    instr_property.opcode1, immediate
                 );
                 break;
             case isa::R_TYPE_LOAD:
             case isa::R_TYPE_IMM_ARITH:
                 instr_word = isa::pack_rtype(
-                    instr_property.opcode1,
-                    instr_property.opcode2,
-                    immediate
+                    instr_property.opcode1, instr_property.opcode2, immediate
                 );
                 break;
             case isa::R_TYPE_MOV:
                 instr_word = isa::pack_rtype(
-                    instr_property.opcode1,
-                    regid[0],
-                    regid[1]
+                    instr_property.opcode1, regid[0], regid[1]
                 );
                 break;
             case isa::T_TYPE_JUMP:
                 instr_word = isa::pack_ttype(
-                    instr_property.opcode1,
-                    immediate
+                    instr_property.opcode1, immediate
                 );
                 break;
             case isa::R_TYPE_STACK:
@@ -170,31 +162,25 @@ int main(int argc, char *argv[])
             case isa::R_TYPE_ARITH:
             case isa::R_TYPE_CMP:
                 instr_word = isa::pack_rtype(
-                    instr_property.opcode1,
-                    instr_property.opcode2,
-                    regid[1]
+                    instr_property.opcode1, instr_property.opcode2, regid[1]
                 );
                 break;
             case isa::E_TYPE_IMM_ARITH:
             case isa::E_TYPE_CMP_IMM:
                 instr_word = isa::pack_etype(
-                    instr_property.opcode1,
-                    instr_property.opcode2,
-                    immediate
+                    instr_property.opcode1, instr_property.opcode2, immediate
                 );
                 break;
             case isa::R_TYPE_FLAG:
                 instr_word = isa::pack_rtype(
-                    instr_property.opcode1,
-                    instr_property.opcode2,
-                    instr_property.opcode3
+                    instr_property.opcode1, instr_property.opcode2, instr_property.opcode3
                 );
                 break;
 
         }
 
         /* Write instruction word to file */
-        std::string instr_word_str = isa::instruction_word_to_str(instr_word);
+        std::string instr_word_str = isa::instr_word_to_str(instr_word);
         output_file << instr_word_str;
         
         /* Increment address */

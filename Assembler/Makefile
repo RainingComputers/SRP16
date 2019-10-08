@@ -4,14 +4,27 @@ help :
 	@echo "      Remove auto-generated files."
 	@echo "build"
 	@echo "      Build release executable."
+	@echo "build CXX=x86_64-w64-mingw32-g++"
+	@echo "      Cross-compile to build 64bit windows executable."
 	@echo "build DEBUG=1"
-	@echo "      Build executable for debugging"
+	@echo "      Build executable for debugging."
 
 # Name of the executable
 EXEC_NAME = srp16asm
 
 # C++ compiler
 CXX ?= g++
+
+# Get platform
+ifeq ($(OS), Windows_NT)
+	PLATFORM = $(OS)_$(PROCESSOR_ARCHITECTURE)
+	EXEC_NAME := $(EXEC_NAME).exe
+else ifeq ($(CXX), x86_64-w64-mingw32-g++)
+	PLATFORM = Windows_NT_AMD64
+	EXEC_NAME := $(EXEC_NAME).exe
+else
+	PLATFORM = $(shell uname -s)_$(shell uname -p)
+endif
 
 # Set C++ compiler flags, build type and build path
 DEBUG ?= 0
@@ -20,7 +33,7 @@ ifeq ($(DEBUG), 1)
 	BUILD_TYPE = debug
 else
     CXXFLAGS = -O3
-	BUILD_TYPE = release
+	BUILD_TYPE = release_$(PLATFORM)
 endif
 
 # Find all .cpp files in src/

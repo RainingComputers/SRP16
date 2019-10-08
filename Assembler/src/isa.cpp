@@ -3,7 +3,7 @@
 namespace isa
 {
     /* Define properties of every instruction */
-    std::map<std::string, property> instruction_properties = {
+    std::map<std::string, property> instr_properties = {
         {"ldr",     {E_TYPE_LOAD, SIGNED, 0b0000, NA, NA}},
         {"ldru",    {E_TYPE_LOAD, UNSIGNED, 0b0001, NA, NA}},
         {"ld@mptr", {E_TYPE_LOAD, SIGNED, 0b0010, NA, NA}},
@@ -52,8 +52,8 @@ namespace isa
         {"notf",    {R_TYPE_FLAG, NOIMM, 0b1100, 0b010000, 0b000000}}
     };
 
-    /* Define instruction syntax/format for every instruction type */
-    format instruction_formats[] = {
+    /* Define instruction syntax/format for every instr type */
+    format instr_formats[] = {
         /* E_TYPE_LOAD,      */  {{GPREGISTER, IMMEDIATE}, 8, 2}, 
         /* T_TYPE_LOAD,      */  {{IMMEDIATE, NA}, 12, 1},
         /* R_TYPE_LOAD,      */  {{IMMEDIATE, NA}, 6, 1},
@@ -71,48 +71,48 @@ namespace isa
 
     uint16_t pack_etype(int field_0_3, int field_4_7, int field_8_15)
     {
-        uint16_t instruction = 0;
-        instruction |= field_0_3;
-        instruction |= (field_4_7<<4);
-        instruction |= (field_8_15<<8);
-        return instruction;
+        uint16_t instr = 0;
+        instr |= field_0_3;
+        instr |= (field_4_7<<4);
+        instr |= (field_8_15<<8);
+        return instr;
     }
 
     uint16_t pack_ttype(int field_0_3, int field_4_15)
     {
-        int16_t instruction = 0;
-        instruction |= field_0_3;
-        instruction |= (field_4_15<<4);
-        return instruction;
+        int16_t instr = 0;
+        instr |= field_0_3;
+        instr |= (field_4_15<<4);
+        return instr;
     }
 
     uint16_t pack_rtype(int field_0_3, int field_4_9, int field_10_15)
     {
-        int16_t instruction = 0;
-        instruction |= field_0_3;
-        instruction |= (field_4_9<<4);
-        instruction |= (field_10_15<<10);
-        return instruction;
+        int16_t instr = 0;
+        instr |= field_0_3;
+        instr |= (field_4_9<<4);
+        instr |= (field_10_15<<10);
+        return instr;
     }
 
-    std::string instruction_word_to_str(uint16_t instruction)
+    std::string instr_word_to_str(uint16_t instr)
     {
-        std::string instruction_str;
+        std::string instr_str;
         
         /* Construct hex string from int */
         for(int i : {1, 0, 3, 2})
         { 
             /* Get ith 4 bits from int */
-            unsigned char digit = (instruction >> (i*4)) & 0x000F;
+            unsigned char digit = (instr >> (i*4)) & 0x000F;
             /* Convert to valid char */
             if(digit <= 9) digit += 48;
             else digit += 55;
             /* Add to string  */
-            instruction_str.push_back(digit);
+            instr_str.push_back(digit);
             /* New line after a byte and the end */
-            if(i==0||i==2) instruction_str.push_back('\n');
+            if(i==0||i==2) instr_str.push_back('\n');
         }
 
-        return instruction_str;
+        return instr_str;
     }
 }
