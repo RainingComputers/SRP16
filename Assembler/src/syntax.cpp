@@ -9,71 +9,57 @@ namespace syntax
     }
 
     bool tokenize(std::string& line, std::string& instruction, 
-        std::string& first_operand, std::string& second_operand,
+        std::string operands[], int max_tokens, 
         int &token_count)
     {
         /* Remove commas and tabs */
-        std::replace_if(line.begin(), line.end(), [](char c)->bool{return isspace(c)||c==',';}, ' ');
+        std::replace_if(line.begin(), line.end(), 
+            [](char c)->bool{return isspace(c);}, ' ');
+        /* Add space at the end to ensure last token is processed */
+        line+=' ';
         /* Extract tokens */
         token_count = 0;
-        for(int i=0; i<line.length();)
+        int start_pos = 0;
+        int end_pos = 0;
+        bool token_start = false;
+        bool expecting_comma = false;
+        for(int i=0; i<line.length(); i++)
         {
-            if(line[i] == ' ') i++;
-            else
+            if(line[i] == ' ' || line[i] == ',')
             {
-                /* Find end of token */
-                size_t pos = line.find(' ', i);
-                /* Extract token from line */
-                std::string token = line.substr(i, pos-i);
-                /* Count */
-                token_count++;
-                /* Assign token */
-                if(token_count == 1) instruction = token;
-                else if(token_count == 2) first_operand = token;
-                else if(token_count == 3) second_operand = token;
-                else
+                /* Extract token if found */
+                if(token_start)
                 {
-                    return false;
+                    token_count++;
+                    std::string token = line.substr(start_pos, i-start_pos);
+                    if(token_count == 1) instruction = token;
+                    else if(token_count <= max_tokens)
+                    {
+                        operands[token_count-2] = token;
+                        expecting_comma = true;
+                    }
+                    else return false;
+                    /* Token found */
+                    token_start = false;
                 }
-                /* Update i */
-                i = pos;
+                /* Check for commas */
+                if(line[i] == ',')
+                    if(!expecting_comma) return false;
+                    else expecting_comma = false;
+            }
+            else if(!token_start)
+            {
+                start_pos = i;
+                token_start = true;
             }
         }
 
         /* Change all tokens to lower case */
         str_tolower(instruction);
-        str_tolower(first_operand);
-        str_tolower(second_operand);
+        for(int i=0; i<token_count-1; i++)
+            str_tolower(operands[i]);
 
         return true;
-    }
-
-    bool check_line(const std::string& line)
-    {
-        /* Count number of commas */
-        int comma_count = std::count(line.begin(),line.end(), ',');
-        if(comma_count > 2) return false;
-
-        /* Find position of first space, first comma and second comma */
-        size_t first_space_pos = line.find(' ');
-        size_t first_comma_pos = line.find(',');
-        size_t second_comma_pos;
-        if(first_comma_pos != std::string::npos)
-            second_comma_pos = line.find(',', first_comma_pos+1);
-        else
-            second_comma_pos = std::string::npos;
-
-        /* Check syntax */
-        if(first_comma_pos == std::string::npos)
-            return true;
-        else
-        {
-            if((int)(first_comma_pos-first_space_pos) < 2) return false;
-            if(second_comma_pos != std::string::npos)
-                if((second_comma_pos-first_comma_pos) < 2) return false;
-
-            return true;
-        }
     }
 
     int get_reg_id(const std::string& operand, bool general_purpose)

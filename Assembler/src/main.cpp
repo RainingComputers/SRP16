@@ -5,6 +5,8 @@
 #include "isa.hpp"
 #include "log.hpp"
 
+#define MAX_TOKENS 3
+
 int main(int argc, char *argv[])
 {
     /* Check for correct usage */
@@ -50,15 +52,8 @@ int main(int argc, char *argv[])
         std::string str_operands[2] = {"", ""};
         int token_count = 0;
 
-        /* Syntax check the line */
-        if(!syntax::check_line(line))
-        {
-            log::syntax_error("", line_no);
-            return EXIT_FAILURE;            
-        }
-
         /* Tokenize the line to instruction and its operands */
-        if(!syntax::tokenize(line, str_instr, str_operands[0], str_operands[1], 
+        if(!syntax::tokenize(line, str_instr, str_operands, MAX_TOKENS, 
             token_count))
         {
             log::syntax_error("", line_no);
