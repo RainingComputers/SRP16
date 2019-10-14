@@ -94,25 +94,4 @@ namespace isa
         instr |= (field_10_15<<10);
         return instr;
     }
-
-    std::string instr_word_to_str(uint16_t instr)
-    {
-        std::string instr_str;
-        
-        /* Construct hex string from int */
-        for(int i : {1, 0, 3, 2})
-        { 
-            /* Get ith 4 bits from int */
-            unsigned char digit = (instr >> (i*4)) & 0x000F;
-            /* Convert to valid char */
-            if(digit <= 9) digit += 48;
-            else digit += 55;
-            /* Add to string  */
-            instr_str.push_back(digit);
-            /* New line after a byte and the end */
-            if(i==0||i==2) instr_str.push_back('\n');
-        }
-
-        return instr_str;
-    }
 }

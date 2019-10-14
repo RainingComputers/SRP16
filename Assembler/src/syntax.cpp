@@ -47,6 +47,18 @@ namespace syntax
                     if(!expecting_comma) return false;
                     else expecting_comma = false;
             }
+            else if(line[i] == '"' && !token_start)
+            {
+                /* for string operands */
+                size_t quote_end = line.find('"', i);
+                if(quote_end == std::string::npos) return false;
+                /* Extract token */
+                std::string token = line.substr(i+1, quote_end-2);
+                operands[token_count-2] = token;
+                expecting_comma = true;                
+                /* Update i */
+                i = quote_end;
+            }
             else if(!token_start)
             {
                 start_pos = i;
@@ -138,5 +150,48 @@ namespace syntax
             if(num >= min && num <= max) return true;
             else return false;
         }
+    }
+
+    std::string byte_to_string(int byte_num)
+    {
+        std::string instr_str;
+        
+        /* Construct hex string from int */
+        for(int i : {1, 0})
+        { 
+            /* Get ith 4 bits from int */
+            unsigned char digit = (byte_num >> (i*4)) & 0x000F;
+            /* Convert to valid char */
+            if(digit <= 9) digit += 48;
+            else digit += 55;
+            /* Add to string  */
+            instr_str.push_back(digit);
+        }
+
+        /* Add new line */
+        instr_str.push_back('\n');
+
+        return instr_str;
+    }
+
+    std::string word_to_string(uint16_t word_int)
+    {
+        std::string instr_str;
+        
+        /* Construct hex string from int */
+        for(int i : {1, 0, 3, 2})
+        { 
+            /* Get ith 4 bits from int */
+            unsigned char digit = (word_int >> (i*4)) & 0x000F;
+            /* Convert to valid char */
+            if(digit <= 9) digit += 48;
+            else digit += 55;
+            /* Add to string  */
+            instr_str.push_back(digit);
+            /* New line after a byte and the end */
+            if(i==0||i==2) instr_str.push_back('\n');
+        }
+
+        return instr_str;
     }
 }

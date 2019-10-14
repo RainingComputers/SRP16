@@ -12,9 +12,6 @@ namespace isa
     uint16_t pack_ttype(int field_0_3, int field_4_15);
     uint16_t pack_rtype(int field_0_3, int field_4_9, int field_10_15);
 
-    /* Used for generating .hex file */
-    std::string instr_word_to_str(uint16_t instr);
-
     /* Types of immediates */
     enum imm_type{SIGNED, UNSIGNED, NOIMM};
 

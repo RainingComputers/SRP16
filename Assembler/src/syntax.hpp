@@ -11,6 +11,8 @@ namespace syntax
     int get_reg_id(const std::string& operand, bool general_purpose=false);
     bool immediate_to_int(const std::string& operand, int& num);
     bool check_range_int(int num, int bits, bool usinged);
+    std::string byte_to_string(int byte_num);
+    std::string word_to_string(uint16_t word_int);
 }
 
 #endif

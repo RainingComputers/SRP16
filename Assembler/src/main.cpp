@@ -68,6 +68,31 @@ int main(int argc, char *argv[])
             str_operands[1] = str_operands[0];
             str_operands[0] = "pc";
         }
+        else if(str_instr == ".byte")
+        {
+            if(token_count-1 > 1)
+            {
+                log::operand_error("Invalid number of operands", line_no);
+                return EXIT_FAILURE;                
+            }
+            int byte_num;
+            /* Convert str operand to int */
+            if(!syntax::immediate_to_int(str_operands[0], byte_num))
+            {
+                log::syntax_error("Invalid immediate token", line_no);                       
+                return EXIT_FAILURE;
+            }
+            /* Check if immediate value is within range */
+            if(!syntax::check_range_int(byte_num, 8, true))
+            {
+                log::operand_error("Value out of range", line_no);
+                return EXIT_FAILURE;    
+            }
+            /* Write to file */
+            address+=1;
+            output_file<<syntax::byte_to_string(byte_num);
+            continue;
+        }
 
         /* if not a preprocessor, then it is a cpu instruction */
         /* Check if it exists */
@@ -175,7 +200,7 @@ int main(int argc, char *argv[])
         }
 
         /* Write instruction word to file */
-        std::string instr_word_str = isa::instr_word_to_str(instr_word);
+        std::string instr_word_str = syntax::word_to_string(instr_word);
         output_file << instr_word_str;
         
         /* Increment address */
