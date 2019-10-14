@@ -90,6 +90,14 @@ int main(int argc, char *argv[])
         /* Check for assembler preprocessors */
         if(str_instr.back() == ':')
         {
+            /* Token count */
+            if(token_count-1 > 0)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
+            /* Remove colon */
             str_instr.pop_back();
             /* Check if label already exists */
             if(symbol_table.find(str_instr) != symbol_table.end())
@@ -122,6 +130,33 @@ int main(int argc, char *argv[])
             symbol_table[str_operands[0]] = value;
             continue;
         }
+        else if(str_instr == ".org")
+        {
+            /* Token count */
+            if(token_count-1 > 1)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
+            /* Get location */
+            int location;
+            if(!syntax::immediate_to_int(str_operands[0], location))
+            {
+                log::syntax_error("Invalid immediate token", line_no,
+                    fstack.back().name);                       
+                return EXIT_FAILURE;
+            }
+            /* No negetive orgs */
+            if(location <= address)
+            {
+                log::syntax_error("Invalid org location", line_no,
+                    fstack.back().name);                       
+                return EXIT_FAILURE;    
+            }
+            address = location;
+            continue;
+        }
         else if(str_instr == "jmp")
         {
             address+=2;
@@ -129,28 +164,61 @@ int main(int argc, char *argv[])
         }
         else if(str_instr == ".byte")
         {
+            /* Token count */
+            if(token_count-1 > 1)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
+            /* Update address */
             address+=1;
             continue;
         }
         else if(str_instr == ".string")
         {
+            /* Token count */
+            if(token_count-1 > 1)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
+            /* Updtate address */
             address+=str_operands[0].length();
             continue;
         }
         else if(str_instr == ".hex")
         {
+            /* Token count */
+            if(token_count-1 > 1)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
+            /* Get length */
             int length = str_operands[0].length();
+            /* If not even */
             if(length%2!=0)
             {
                 log::syntax_error("Number of digits should be even", line_no,
                     fstack.back().name);
                 return EXIT_FAILURE;                
             }
+            /* Update address */
             address+=length/2;
             continue;
         }
         else if(str_instr == ".include")
         {
+            /* Token count */
+            if(token_count-1 > 1)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
             /* Push new file to the file stack */
             if(!file_stack::push_file(str_operands[0], fstack))
             {
@@ -222,17 +290,21 @@ int main(int argc, char *argv[])
 
         /* Check for assembler preprocessors */
         if(str_instr.back() == ':')
+            continue;
+        else if(str_instr == ".equ")
+            continue;
+        else if(str_instr == ".org")
         {
-            if(token_count-1 > 0)
+            int location;
+            syntax::immediate_to_int(str_operands[0], location);
+            address = location;
+            /* zero till org location is reached */
+            for(int i=1; i<address-1; i++)
             {
-                log::operand_error("Invalid number of operands", line_no, 
-                    fstack.back().name);
-                return EXIT_FAILURE;                
+                output_file<<"00\n";
             }
             continue;
         }
-        else if(str_instr == ".equ")
-            continue;
         else if(str_instr == "jmp")
         {
             /* Change JMP Ry to MOV PC, Ry */
@@ -242,12 +314,6 @@ int main(int argc, char *argv[])
         }
         else if(str_instr == ".byte")
         {
-            if(token_count-1 > 1)
-            {
-                log::operand_error("Invalid number of operands", line_no, 
-                    fstack.back().name);
-                return EXIT_FAILURE;                
-            }
             int byte_num;
             /* Convert str operand to int */
             if(!syntax::immediate_to_int(str_operands[0], byte_num))
@@ -270,12 +336,6 @@ int main(int argc, char *argv[])
         }
         else if(str_instr == ".string")
         {
-            if(token_count-1 > 1)
-            {
-                log::operand_error("Invalid number of operands", line_no, 
-                    fstack.back().name);
-                return EXIT_FAILURE;                
-            }
             for(char c : str_operands[0])
             {
                 /* Write to file */
@@ -286,12 +346,6 @@ int main(int argc, char *argv[])
         }
         else if(str_instr == ".hex")
         {
-            if(token_count-1 > 1)
-            {
-                log::operand_error("Invalid number of operands", line_no, 
-                    fstack.back().name);
-                return EXIT_FAILURE;                
-            }
             /* Check if valid hex string */
             for(char c: str_operands[0])
             {
