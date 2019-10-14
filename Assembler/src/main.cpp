@@ -84,6 +84,9 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
+        /* Ignore blank lines */
+        if(token_count == 0) continue;
+
         /* Check for assembler preprocessors */
         if(str_instr.back() == ':')
         {
@@ -197,9 +200,20 @@ int main(int argc, char *argv[])
         syntax::tokenize(line, str_instr, str_operands, MAX_TOKENS, 
             token_count);
 
+        /* Ignore blank lines */
+        if(token_count == 0) continue;
+
         /* Check for assembler preprocessors */
         if(str_instr.back() == ':')
+        {
+            if(token_count-1 > 0)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
             continue;
+        }
         else if(str_instr == ".equ")
             continue;
         else if(str_instr == "jmp")
