@@ -132,6 +132,23 @@ int main(int argc, char *argv[])
             address+=1;
             continue;
         }
+        else if(str_instr == ".string")
+        {
+            address+=str_operands[0].length();
+            continue;
+        }
+        else if(str_instr == ".hex")
+        {
+            int length = str_operands[0].length();
+            if(length%2!=0)
+            {
+                log::syntax_error("Number of digits should be even", line_no,
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
+            address+=length/2;
+            continue;
+        }
         else if(str_instr == ".include")
         {
             /* Push new file to the file stack */
@@ -249,6 +266,51 @@ int main(int argc, char *argv[])
             /* Write to file */
             address+=1;
             output_file<<syntax::byte_to_string(byte_num);
+            continue;
+        }
+        else if(str_instr == ".string")
+        {
+            if(token_count-1 > 1)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
+            for(char c : str_operands[0])
+            {
+                /* Write to file */
+                address+=1;
+                output_file<<syntax::byte_to_string(c);
+            }
+            continue;
+        }
+        else if(str_instr == ".hex")
+        {
+            if(token_count-1 > 1)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;                
+            }
+            /* Check if valid hex string */
+            for(char c: str_operands[0])
+            {
+                if(!((c>='0' && c<='9')||(c>='a'&&c<='f')||(c>='A'&&c<='F')))
+                {
+                    log::syntax_error("Invalid hex string", line_no, 
+                        fstack.back().name);
+                    return EXIT_FAILURE; 
+                }
+            }            
+            /* Write to file */
+            for(int i=0; i<str_operands[0].length(); i+=2)
+            {
+                /* Write to file */
+                output_file<<str_operands[0][i];
+                output_file<<str_operands[0][i+1];
+                output_file<<"\n";
+                address+=1;
+            }
             continue;
         }
         else if(str_instr == ".include")

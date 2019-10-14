@@ -32,6 +32,7 @@ namespace syntax
                 {
                     token_count++;
                     std::string token = line.substr(start_pos, i-start_pos);
+                    str_tolower(token);
                     if(token_count == 1) instruction = token;
                     else if(token_count <= max_tokens)
                     {
@@ -69,11 +70,6 @@ namespace syntax
                 token_start = true;
             }
         }
-
-        /* Change all tokens to lower case */
-        str_tolower(instruction);
-        for(int i=0; i<token_count-1; i++)
-            str_tolower(operands[i]);
 
         return true;
     }
