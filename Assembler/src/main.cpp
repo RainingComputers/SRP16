@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "syntax.hpp"
 #include "isa.hpp"
@@ -14,18 +15,13 @@ int main(int argc, char *argv[])
     /* Create file stack */
     std::vector<file_stack::file_tracker> fstack;
 
+    /* Map for symbol table */
+    std::map<std::string, int> symbol_table;
+
     /* Check for correct usage */
     if(argc != 3)
     {
         log::usage_error("srp16asm INPUTFILE OUTPUTFILE");
-        return EXIT_FAILURE;
-    }
-
-    /* Input assembly file */
-    std::string input_file = argv[1];
-    if(!file_stack::push_file(input_file, fstack))
-    {
-        log::error("Unable to open input file");
         return EXIT_FAILURE;
     }
 
@@ -37,8 +33,27 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    /* Process assembly file */
+    /* String for holding current line being processed */
     std::string line;
+
+    /*
+        ==================================
+        = First pass, build symbol table = 
+        ==================================
+    */
+
+    /* Input assembly file */
+    std::string input_file = argv[1];
+    if(!file_stack::push_file(input_file, fstack))
+    {
+        log::error("Unable to open input file");
+        return EXIT_FAILURE;
+    }
+
+    /* Keep track of address */
+    int address = 0;
+
+    /* Process assebmly files to build symbol table */
     while(true)
     {
         /* Get line from current file being processed */
@@ -51,9 +66,6 @@ int main(int argc, char *argv[])
         /* Count lines */
         fstack.back().line_no++;
         int line_no = fstack.back().line_no;
-
-        /* Keep track of address */
-        int address = 0;
 
         /* Ignore everything after semicolon */
         size_t semicolon_pos = line.find(';');
@@ -73,7 +85,124 @@ int main(int argc, char *argv[])
         }
 
         /* Check for assembler preprocessors */
-        if(str_instr == "jmp")
+        if(str_instr.back() == ':')
+        {
+            str_instr.pop_back();
+            /* Check if label already exists */
+            if(symbol_table.find(str_instr) != symbol_table.end())
+            {
+                log::syntax_error("Label already defined", line_no,
+                    fstack.back().name);
+                return EXIT_FAILURE;
+            }
+            /* add to table */
+            symbol_table[str_instr] = address;
+            continue;
+        }
+        else if(str_instr == ".equ")
+        {
+            /* Check if label already exists */
+            if(symbol_table.find(str_operands[0]) != symbol_table.end())
+            {
+                log::syntax_error("Symbol already defined", line_no,
+                    fstack.back().name);
+                return EXIT_FAILURE;
+            }
+            /* add to table */
+            int value;
+            if(!syntax::immediate_to_int(str_operands[1], value))
+            {
+                log::syntax_error("Invalid immediate token", line_no,
+                    fstack.back().name);                       
+                return EXIT_FAILURE;
+            }
+            symbol_table[str_operands[0]] = value;
+            continue;
+        }
+        else if(str_instr == "jmp")
+        {
+            address+=2;
+            continue;
+        }
+        else if(str_instr == ".byte")
+        {
+            address+=1;
+            continue;
+        }
+        else if(str_instr == ".include")
+        {
+            /* Push new file to the file stack */
+            if(!file_stack::push_file(str_operands[0], fstack))
+            {
+                log::include_error(str_operands[0], line_no,
+                    fstack.back().name);
+                return EXIT_FAILURE;
+            }
+            continue;
+        }
+
+        /* if not a preprocessor, then it is a cpu instruction */
+        /* Check if it exists */
+        if(isa::instr_properties.find(str_instr) == isa::instr_properties.end())
+        {
+            log::syntax_error("Unknown instruction or preprocessor", line_no,
+                fstack.back().name);
+            return EXIT_FAILURE;
+        }
+        
+        /* Increment address */
+        address+=2;
+    }
+
+    /*
+        =========================
+        = Second pass, assemble = 
+        =========================
+    */
+
+    /* Input assembly file */
+    if(!file_stack::push_file(input_file, fstack))
+    {
+        log::error("Unable to open input file");
+        return EXIT_FAILURE;
+    }
+
+    /* Keep track of address */
+    address = 0;
+
+    /* Process assembly files to .hex file */
+    while(true)
+    {
+        /* Get line from current file being processed */
+        if(!std::getline(fstack.back().file_stream, line))
+        {
+            if(!file_stack::pop_file(fstack)) break;
+            else continue;
+        }
+
+        /* Count lines */
+        fstack.back().line_no++;
+        int line_no = fstack.back().line_no;
+
+        /* Ignore everything after semicolon */
+        size_t semicolon_pos = line.find(';');
+        line = line.substr(0, semicolon_pos);
+
+        /* Tokens */
+        std::string str_instr = "";
+        std::string str_operands[2] = {"", ""};
+        int token_count = 0;
+
+        /* Tokenize the line to instruction and its operands */
+        syntax::tokenize(line, str_instr, str_operands, MAX_TOKENS, 
+            token_count);
+
+        /* Check for assembler preprocessors */
+        if(str_instr.back() == ':')
+            continue;
+        else if(str_instr == ".equ")
+            continue;
+        else if(str_instr == "jmp")
         {
             /* Change JMP Ry to MOV PC, Ry */
             str_instr == "mov";
@@ -121,13 +250,6 @@ int main(int argc, char *argv[])
         }
 
         /* if not a preprocessor, then it is a cpu instruction */
-        /* Check if it exists */
-        if(isa::instr_properties.find(str_instr) == isa::instr_properties.end())
-        {
-            log::syntax_error("Unknown instr or preprocessor", line_no,
-                fstack.back().name);
-            return EXIT_FAILURE;
-        }
 
         /* Get instruction properties and formats */
         isa::property instr_property = isa::instr_properties[str_instr];
@@ -157,9 +279,18 @@ int main(int argc, char *argv[])
                         return EXIT_FAILURE;
                     }
                     break;
+                case isa::RIMMEDIATE:
                 case isa::IMMEDIATE:
-                    /* Convert str operand to int */
-                    if(!syntax::immediate_to_int(str_operands[i], immediate))
+                    /* Check symbol table */
+                    if(symbol_table.find(str_operands[i]) != symbol_table.end())
+                    {
+                        immediate = symbol_table[str_operands[i]];
+                        /* If relative */
+                        if(instr_format.operand_type[i] == isa::RIMMEDIATE)
+                            immediate -= address;
+                    }
+                    /* If not in table Convert str operand to int */
+                    else if(!syntax::immediate_to_int(str_operands[i], immediate))
                     {
                         log::syntax_error("Invalid immediate token", line_no,
                             fstack.back().name);                       

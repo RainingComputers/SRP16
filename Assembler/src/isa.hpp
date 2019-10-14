@@ -22,7 +22,7 @@ namespace isa
         R_TYPE_FLAG};
 
     /* enum for diffrent types of operands */
-    enum oper_type{REGISTER, GPREGISTER, IMMEDIATE};
+    enum oper_type{REGISTER, GPREGISTER, IMMEDIATE, RIMMEDIATE};
 
     /* For not applicable */
     const int NA = -1;

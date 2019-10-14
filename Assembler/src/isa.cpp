@@ -58,7 +58,7 @@ namespace isa
         /* T_TYPE_LOAD,      */  {{IMMEDIATE, NA}, 12, 1},
         /* R_TYPE_LOAD,      */  {{IMMEDIATE, NA}, 6, 1},
         /* R_TYPE_MOV,       */  {{REGISTER, REGISTER}, NA, 2},
-        /* T_TYPE_JUMP,      */  {{IMMEDIATE, NA}, 12, 1},
+        /* T_TYPE_JUMP,      */  {{RIMMEDIATE, NA}, 12, 1},
         /* R_TYPE_STACK,     */  {{GPREGISTER, NA}, NA, 1},
         /* R_TYPE_INCDEC,    */  {{GPREGISTER, NA}, NA, 1},
         /* E_TYPE_IMM_ARITH, */  {{IMMEDIATE, NA}, 8, 1},
