@@ -49,11 +49,15 @@ namespace syntax
             }
             else if(line[i] == '"' && !token_start)
             {
+                /* Token count */
+                token_count++;
+                if(token_count == 1) return false;             
+                if(!(token_count <= max_tokens)) return false;
                 /* for string operands */
-                size_t quote_end = line.find('"', i);
+                size_t quote_end = line.find('"', i+1);
                 if(quote_end == std::string::npos) return false;
                 /* Extract token */
-                std::string token = line.substr(i+1, quote_end-2);
+                std::string token = line.substr(i+1, quote_end-i-1);
                 operands[token_count-2] = token;
                 expecting_comma = true;                
                 /* Update i */

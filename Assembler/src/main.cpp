@@ -1,14 +1,19 @@
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "syntax.hpp"
 #include "isa.hpp"
 #include "log.hpp"
+#include "file_stack.hpp"
 
 #define MAX_TOKENS 3
 
 int main(int argc, char *argv[])
 {
+    /* Create file stack */
+    std::vector<file_stack::file_tracker> fstack;
+
     /* Check for correct usage */
     if(argc != 3)
     {
@@ -17,8 +22,8 @@ int main(int argc, char *argv[])
     }
 
     /* Input assembly file */
-    std::ifstream input_file(argv[1]);
-    if(!input_file.is_open())
+    std::string input_file = argv[1];
+    if(!file_stack::push_file(input_file, fstack))
     {
         log::error("Unable to open input file");
         return EXIT_FAILURE;
@@ -34,11 +39,18 @@ int main(int argc, char *argv[])
 
     /* Process assembly file */
     std::string line;
-    int line_no = 0;
-    while(std::getline(input_file, line))
+    while(true)
     {
+        /* Get line from current file being processed */
+        if(!std::getline(fstack.back().file_stream, line))
+        {
+            if(!file_stack::pop_file(fstack)) break;
+            else continue;
+        }
+
         /* Count lines */
-        line_no++;
+        fstack.back().line_no++;
+        int line_no = fstack.back().line_no;
 
         /* Keep track of address */
         int address = 0;
@@ -56,7 +68,7 @@ int main(int argc, char *argv[])
         if(!syntax::tokenize(line, str_instr, str_operands, MAX_TOKENS, 
             token_count))
         {
-            log::syntax_error("", line_no);
+            log::syntax_error("", line_no, fstack.back().name);
             return EXIT_FAILURE;
         }
 
@@ -72,20 +84,23 @@ int main(int argc, char *argv[])
         {
             if(token_count-1 > 1)
             {
-                log::operand_error("Invalid number of operands", line_no);
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
                 return EXIT_FAILURE;                
             }
             int byte_num;
             /* Convert str operand to int */
             if(!syntax::immediate_to_int(str_operands[0], byte_num))
             {
-                log::syntax_error("Invalid immediate token", line_no);                       
+                log::syntax_error("Invalid immediate token", line_no,
+                    fstack.back().name);                       
                 return EXIT_FAILURE;
             }
             /* Check if immediate value is within range */
             if(!syntax::check_range_int(byte_num, 8, true))
             {
-                log::operand_error("Value out of range", line_no);
+                log::operand_error("Value out of range", line_no, 
+                    fstack.back().name);
                 return EXIT_FAILURE;    
             }
             /* Write to file */
@@ -93,12 +108,24 @@ int main(int argc, char *argv[])
             output_file<<syntax::byte_to_string(byte_num);
             continue;
         }
+        else if(str_instr == ".include")
+        {
+            /* Push new file to the file stack */
+            if(!file_stack::push_file(str_operands[0], fstack))
+            {
+                log::include_error(str_operands[0], line_no,
+                    fstack.back().name);
+                return EXIT_FAILURE;
+            }
+            continue;
+        }
 
         /* if not a preprocessor, then it is a cpu instruction */
         /* Check if it exists */
         if(isa::instr_properties.find(str_instr) == isa::instr_properties.end())
         {
-            log::syntax_error("Unknown instr or preprocessor", line_no);
+            log::syntax_error("Unknown instr or preprocessor", line_no,
+                fstack.back().name);
             return EXIT_FAILURE;
         }
 
@@ -109,7 +136,8 @@ int main(int argc, char *argv[])
         /* Check if there are correct number of operands */
         if(token_count-1 != instr_format.no_operands)
         {
-            log::operand_error("Invalid number of operands", line_no);
+            log::operand_error("Invalid number of operands", line_no, 
+                fstack.back().name);
             return EXIT_FAILURE;
         }
 
@@ -124,7 +152,8 @@ int main(int argc, char *argv[])
                     regid[i] = syntax::get_reg_id(str_operands[i], instr_format.operand_type[i]);
                     if(regid[i] < 0)
                     {
-                        log::operand_error("Invalid register", line_no);
+                        log::operand_error("Invalid register", line_no,
+                            fstack.back().name);
                         return EXIT_FAILURE;
                     }
                     break;
@@ -132,7 +161,8 @@ int main(int argc, char *argv[])
                     /* Convert str operand to int */
                     if(!syntax::immediate_to_int(str_operands[i], immediate))
                     {
-                        log::syntax_error("Invalid immediate token", line_no);                       
+                        log::syntax_error("Invalid immediate token", line_no,
+                            fstack.back().name);                       
                         return EXIT_FAILURE;
                     }
 
@@ -140,7 +170,8 @@ int main(int argc, char *argv[])
                     if(!syntax::check_range_int(immediate, instr_format.immediate_size, 
                         instr_property.immediate_type))
                     {
-                        log::operand_error("Immediate value out of range", line_no);
+                        log::operand_error("Immediate value out of range", line_no,
+                            fstack.back().name);
                         return EXIT_FAILURE;    
                     }
                     break;
@@ -208,7 +239,6 @@ int main(int argc, char *argv[])
     }
 
     /* Close files */
-    input_file.close();
     output_file.close();
     
     /* Exit successfully */
