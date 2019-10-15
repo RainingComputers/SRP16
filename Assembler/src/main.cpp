@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
             int value;
             if(!syntax::immediate_to_int(str_operands[1], value))
             {
-                log::syntax_error("Invalid immediate token", line_no,
+                log::syntax_error("Invalid operand token", line_no,
                     fstack.back().name);                       
                 return EXIT_FAILURE;
             }
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
             int location;
             if(!syntax::immediate_to_int(str_operands[0], location))
             {
-                log::syntax_error("Invalid immediate token", line_no,
+                log::syntax_error("Invalid operand token", line_no,
                     fstack.back().name);                       
                 return EXIT_FAILURE;
             }
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
             /* Convert str operand to int */
             if(!syntax::immediate_to_int(str_operands[0], byte_num))
             {
-                log::syntax_error("Invalid immediate token", line_no,
+                log::syntax_error("Invalid operand token", line_no,
                     fstack.back().name);                       
                 return EXIT_FAILURE;
             }
