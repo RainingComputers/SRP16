@@ -47,6 +47,9 @@ clean:
 	rm -f -r obj/
 
 # For compiling .cpp files in src/ to .o object files in obj/
+obj/$(BUILD_TYPE)/%.o: src/%.cpp src/%.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 obj/$(BUILD_TYPE)/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
