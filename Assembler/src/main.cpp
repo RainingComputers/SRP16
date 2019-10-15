@@ -197,6 +197,16 @@ int main(int argc, char *argv[])
                     fstack.back().name);
                 return EXIT_FAILURE;                
             }
+            /* Check if valid hex string */
+            for(char c: str_operands[0])
+            {
+                if(!((c>='0' && c<='9')||(c>='a'&&c<='f')||(c>='A'&&c<='F')))
+                {
+                    log::syntax_error("Invalid hex string", line_no, 
+                        fstack.back().name);
+                    return EXIT_FAILURE; 
+                }
+            }   
             /* Get length */
             int length = str_operands[0].length();
             /* If not even */
@@ -345,17 +355,7 @@ int main(int argc, char *argv[])
             continue;
         }
         else if(str_instr == ".hex")
-        {
-            /* Check if valid hex string */
-            for(char c: str_operands[0])
-            {
-                if(!((c>='0' && c<='9')||(c>='a'&&c<='f')||(c>='A'&&c<='F')))
-                {
-                    log::syntax_error("Invalid hex string", line_no, 
-                        fstack.back().name);
-                    return EXIT_FAILURE; 
-                }
-            }            
+        {         
             /* Write to file */
             for(int i=0; i<str_operands[0].length(); i+=2)
             {
