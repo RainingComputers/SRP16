@@ -133,23 +133,15 @@ namespace syntax
         return true;
     }
 
-    bool check_range_int(int num, int bits, bool usigned=false)
+    bool check_range_int(int num, int bits)
     {
-        if(usigned)
-        {
-            if(num < (1<<bits) && num >= 0) return true;
-            else return false;
-        }
-        else
-        {
-            /* Get minimum and maximum value that num can take */
-            int min = -1* (1<<bits)/2;
-            int max = (1<<bits)/2 - 1;
-    
-            /* Check if within limits */
-            if(num >= min && num <= max) return true;
-            else return false;
-        }
+        /* Get minimum and maximum value that num can take */
+        int min = -1* (1<<bits)/2;
+        int max = (1<<bits) - 1;
+
+        /* Check if within limits */
+        if(num >= min && num <= max) return true;
+        else return false;
     }
 
     std::string byte_to_string(int byte_num)

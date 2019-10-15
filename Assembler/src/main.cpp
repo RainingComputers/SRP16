@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             /* Check if immediate value is within range */
-            if(!syntax::check_range_int(byte_num, 8, true))
+            if(!syntax::check_range_int(byte_num, 8))
             {
                 log::operand_error("Value out of range", line_no, 
                     fstack.back().name);
@@ -428,8 +428,7 @@ int main(int argc, char *argv[])
                     }
 
                     /* Check if immediate value is within range */
-                    if(!syntax::check_range_int(immediate, instr_format.immediate_size, 
-                        instr_property.immediate_type))
+                    if(!syntax::check_range_int(immediate, instr_format.immediate_size))
                     {
                         log::operand_error("Immediate value out of range", line_no,
                             fstack.back().name);
