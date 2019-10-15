@@ -4,7 +4,7 @@ namespace log
 {
     static void in_file(std::string& file_name)
     {
-        std::cout<<"In \""<<file_name<<"\":\n";
+        std::cout<<"In file \""<<file_name<<"\":\n";
     }
 
     void syntax_error(const std::string& error, int line_no, 
