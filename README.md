@@ -9,7 +9,7 @@ SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/ma
 - [x] ISA Specification
 - [x] Reference Implementation in Icarus Verilog
 - [ ] Reference Implementation in Lattice iCEstick
-- [ ] Assembler
+- [x] Assembler
 - [ ] ISA Simulator
 - [ ] I/O, Interrupts and Timers
 
