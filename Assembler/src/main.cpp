@@ -401,7 +401,22 @@ int main(int argc, char *argv[])
             {
                 case isa::REGISTER:
                 case isa::GPREGISTER:
-                    regid[i] = syntax::get_reg_id(str_operands[i], instr_format.operand_type[i]);
+                case isa::LREGISTER:
+                    int reg_range;
+                    switch(instr_format.operand_type[i])
+                    {
+                        case isa::REGISTER:
+                            reg_range = 63;
+                            break;
+                        case isa::GPREGISTER:
+                            reg_range = 31;
+                            break;
+                        case isa::LREGISTER:
+                            reg_range = 15;
+                            break;
+                    }
+                    /* Get regid and check if valid */
+                    regid[i] = syntax::get_reg_id(str_operands[i], reg_range);
                     if(regid[i] < 0)
                     {
                         log::operand_error("Invalid register", line_no,

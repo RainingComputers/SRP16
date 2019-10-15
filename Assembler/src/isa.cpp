@@ -54,7 +54,7 @@ namespace isa
 
     /* Define instruction syntax/format for every instr type */
     format instr_formats[] = {
-        /* E_TYPE_LOAD,      */  {{GPREGISTER, IMMEDIATE}, 8, 2}, 
+        /* E_TYPE_LOAD,      */  {{LREGISTER, IMMEDIATE}, 8, 2}, 
         /* T_TYPE_LOAD,      */  {{IMMEDIATE, NA}, 12, 1},
         /* R_TYPE_LOAD,      */  {{IMMEDIATE, NA}, 6, 1},
         /* R_TYPE_MOV,       */  {{REGISTER, REGISTER}, NA, 2},

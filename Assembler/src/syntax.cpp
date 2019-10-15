@@ -74,7 +74,7 @@ namespace syntax
         return true;
     }
 
-    int get_reg_id(const std::string& operand, bool general_purpose)
+    int get_reg_id(const std::string& operand, int reg_range)
     {
         if(operand[0] == 'r')
         {
@@ -90,8 +90,7 @@ namespace syntax
                 int id = (operand[2]-48) + (operand[1]-48)*10;
 
                 /* Check if in range and return */
-                if(id < 64 && !general_purpose) return id;
-                else if(id < 32) return id;
+                if(id <= reg_range) return id;
                 else return -1;
             }
             else if(operand.length() == 2)
@@ -103,10 +102,10 @@ namespace syntax
                 return (operand[1]-48);
             }
         }
-        else if(operand == "a") return 60;
-        else if(operand == "mptr") return 61;
-        else if(operand == "sp") return 62;
-        else if(operand == "pc") return 63;
+        else if(operand == "a" && reg_range>31) return 60;
+        else if(operand == "mptr" && reg_range>31) return 61;
+        else if(operand == "sp" && reg_range>31) return 62;
+        else if(operand == "pc" && reg_range>31) return 63;
         else return -1;
     }
 

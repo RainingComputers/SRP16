@@ -8,7 +8,7 @@
 namespace syntax
 {
     bool tokenize(std::string&, std::string&, std::string*, int, int&);
-    int get_reg_id(const std::string& operand, bool general_purpose=false);
+    int get_reg_id(const std::string& operand, int reg_range);
     bool immediate_to_int(const std::string& operand, int& num);
     bool check_range_int(int num, int bits);
     std::string byte_to_string(int byte_num);
