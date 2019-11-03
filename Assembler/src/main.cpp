@@ -108,7 +108,6 @@ int main(int argc, char *argv[])
             }
             /* add to table */
             symbol_table[str_instr] = address;
-            continue;
         }
         else if(str_instr == ".equ")
         {
@@ -128,7 +127,6 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             symbol_table[str_operands[0]] = value;
-            continue;
         }
         else if(str_instr == ".org")
         {
@@ -155,12 +153,10 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;    
             }
             address = location;
-            continue;
         }
         else if(str_instr == "jmp")
         {
             address+=2;
-            continue;
         }
         else if(str_instr == ".byte")
         {
@@ -173,7 +169,6 @@ int main(int argc, char *argv[])
             }
             /* Update address */
             address+=1;
-            continue;
         }
         else if(str_instr == ".string")
         {
@@ -186,7 +181,6 @@ int main(int argc, char *argv[])
             }
             /* Updtate address */
             address+=str_operands[0].length();
-            continue;
         }
         else if(str_instr == ".hex")
         {
@@ -218,7 +212,6 @@ int main(int argc, char *argv[])
             }
             /* Update address */
             address+=length/2;
-            continue;
         }
         else if(str_instr == ".include")
         {
@@ -236,20 +229,21 @@ int main(int argc, char *argv[])
                     fstack.back().name);
                 return EXIT_FAILURE;
             }
-            continue;
         }
-
         /* if not a preprocessor, then it is a cpu instruction */
         /* Check if it exists */
-        if(isa::instr_properties.find(str_instr) == isa::instr_properties.end())
+        else if(isa::instr_properties.find(str_instr) == isa::instr_properties.end())
         {
             log::syntax_error("Unknown instruction or preprocessor", line_no,
                 fstack.back().name);
             return EXIT_FAILURE;
         }
-        
-        /* Increment address */
-        address+=2;
+        /* If the cpu instruction does exist */
+        else
+        {
+            /* Increment address */
+            address+=2;
+        }
     }
 
     /*
@@ -313,14 +307,6 @@ int main(int argc, char *argv[])
             {
                 output_file<<"00\n";
             }
-            continue;
-        }
-        else if(str_instr == "jmp")
-        {
-            /* Change JMP Ry to MOV PC, Ry */
-            str_instr == "mov";
-            str_operands[1] = str_operands[0];
-            str_operands[0] = "pc";
         }
         else if(str_instr == ".byte")
         {
@@ -342,7 +328,6 @@ int main(int argc, char *argv[])
             /* Write to file */
             address+=1;
             output_file<<syntax::byte_to_string(byte_num);
-            continue;
         }
         else if(str_instr == ".string")
         {
@@ -352,7 +337,6 @@ int main(int argc, char *argv[])
                 address+=1;
                 output_file<<syntax::byte_to_string(c);
             }
-            continue;
         }
         else if(str_instr == ".hex")
         {         
@@ -365,7 +349,6 @@ int main(int argc, char *argv[])
                 output_file<<"\n";
                 address+=1;
             }
-            continue;
         }
         else if(str_instr == ".include")
         {
@@ -376,141 +359,150 @@ int main(int argc, char *argv[])
                     fstack.back().name);
                 return EXIT_FAILURE;
             }
-            continue;
         }
-
         /* if not a preprocessor, then it is a cpu instruction */
-
-        /* Get instruction properties and formats */
-        isa::property instr_property = isa::instr_properties[str_instr];
-        isa::format instr_format = isa::instr_formats[instr_property.instr_type];
-
-        /* Check if there are correct number of operands */
-        if(token_count-1 != instr_format.no_operands)
+        else
         {
-            log::operand_error("Invalid number of operands", line_no, 
-                fstack.back().name);
-            return EXIT_FAILURE;
-        }
-
-        /* Process string operands to register id or immediate integers */
-        int immediate, regid[2];
-        for(int i=0; i<instr_format.no_operands; i++)
-        {
-            switch(instr_format.operand_type[i])
+            /* Check for pseudo instructions */
+            if(str_instr == "jmp")
             {
-                case isa::REGISTER:
-                case isa::GPREGISTER:
-                case isa::LREGISTER:
-                    int reg_range;
-                    switch(instr_format.operand_type[i])
-                    {
-                        case isa::REGISTER:
-                            reg_range = 63;
-                            break;
-                        case isa::GPREGISTER:
-                            reg_range = 31;
-                            break;
-                        case isa::LREGISTER:
-                            reg_range = 15;
-                            break;
-                    }
-                    /* Get regid and check if valid */
-                    regid[i] = syntax::get_reg_id(str_operands[i], reg_range);
-                    if(regid[i] < 0)
-                    {
-                        log::operand_error("Invalid register", line_no,
-                            fstack.back().name);
-                        return EXIT_FAILURE;
-                    }
-                    break;
-                case isa::RIMMEDIATE:
-                case isa::IMMEDIATE:
-                    /* Check symbol table */
-                    if(symbol_table.find(str_operands[i]) != symbol_table.end())
-                    {
-                        immediate = symbol_table[str_operands[i]];
-                        /* If relative */
-                        if(instr_format.operand_type[i] == isa::RIMMEDIATE)
-                            immediate -= address;
-                    }
-                    /* If not in table Convert str operand to int */
-                    else if(!syntax::immediate_to_int(str_operands[i], immediate))
-                    {
-                        log::syntax_error("Invalid immediate token", line_no,
-                            fstack.back().name);                       
-                        return EXIT_FAILURE;
-                    }
-
-                    /* Check if immediate value is within range */
-                    if(!syntax::check_range_int(immediate, instr_format.immediate_size))
-                    {
-                        log::operand_error("Immediate value out of range", line_no,
-                            fstack.back().name);
-                        return EXIT_FAILURE;    
-                    }
-                    break;
+                /* Change JMP Ry to MOV PC, Ry */
+                str_instr == "mov";
+                str_operands[1] = str_operands[0];
+                str_operands[0] = "pc";
             }
+
+            /* Get instruction properties and formats */
+            isa::property instr_property = isa::instr_properties[str_instr];
+            isa::format instr_format = isa::instr_formats[instr_property.instr_type];
+
+            /* Check if there are correct number of operands */
+            if(token_count-1 != instr_format.no_operands)
+            {
+                log::operand_error("Invalid number of operands", line_no, 
+                    fstack.back().name);
+                return EXIT_FAILURE;
+            }
+
+            /* Process string operands to register id or immediate integers */
+            int immediate, regid[2];
+            for(int i=0; i<instr_format.no_operands; i++)
+            {
+                switch(instr_format.operand_type[i])
+                {
+                    case isa::REGISTER:
+                    case isa::GPREGISTER:
+                    case isa::LREGISTER:
+                        int reg_range;
+                        switch(instr_format.operand_type[i])
+                        {
+                            case isa::REGISTER:
+                                reg_range = 63;
+                                break;
+                            case isa::GPREGISTER:
+                                reg_range = 31;
+                                break;
+                            case isa::LREGISTER:
+                                reg_range = 15;
+                                break;
+                        }
+                        /* Get regid and check if valid */
+                        regid[i] = syntax::get_reg_id(str_operands[i], reg_range);
+                        if(regid[i] < 0)
+                        {
+                            log::operand_error("Invalid register", line_no,
+                                fstack.back().name);
+                            return EXIT_FAILURE;
+                        }
+                        break;
+                    case isa::RIMMEDIATE:
+                    case isa::IMMEDIATE:
+                        /* Check symbol table */
+                        if(symbol_table.find(str_operands[i]) != symbol_table.end())
+                        {
+                            immediate = symbol_table[str_operands[i]];
+                            /* If relative */
+                            if(instr_format.operand_type[i] == isa::RIMMEDIATE)
+                                immediate -= address;
+                        }
+                        /* If not in table Convert str operand to int */
+                        else if(!syntax::immediate_to_int(str_operands[i], immediate))
+                        {
+                            log::syntax_error("Invalid immediate token", line_no,
+                                fstack.back().name);                       
+                            return EXIT_FAILURE;
+                        }
+
+                        /* Check if immediate value is within range */
+                        if(!syntax::check_range_int(immediate, instr_format.immediate_size))
+                        {
+                            log::operand_error("Immediate value out of range", line_no,
+                                fstack.back().name);
+                            return EXIT_FAILURE;    
+                        }
+                        break;
+                }
+            }
+
+            /* Create binary instruction word */
+            uint16_t instr_word;
+            switch(instr_property.instr_type)
+            {
+                case isa::E_TYPE_LOAD:
+                    instr_word = isa::pack_etype(
+                        instr_property.opcode1, regid[0], immediate
+                    );
+                    break;
+                case isa::T_TYPE_LOAD:
+                    instr_word = isa::pack_ttype(
+                        instr_property.opcode1, immediate
+                    );
+                    break;
+                case isa::R_TYPE_LOAD:
+                case isa::R_TYPE_IMM_ARITH:
+                    instr_word = isa::pack_rtype(
+                        instr_property.opcode1, instr_property.opcode2, immediate
+                    );
+                    break;
+                case isa::R_TYPE_MOV:
+                    instr_word = isa::pack_rtype(
+                        instr_property.opcode1, regid[0], regid[1]
+                    );
+                    break;
+                case isa::T_TYPE_JUMP:
+                    instr_word = isa::pack_ttype(
+                        instr_property.opcode1, immediate
+                    );
+                    break;
+                case isa::R_TYPE_STACK:
+                case isa::R_TYPE_INCDEC:
+                case isa::R_TYPE_ARITH:
+                case isa::R_TYPE_CMP:
+                    instr_word = isa::pack_rtype(
+                        instr_property.opcode1, instr_property.opcode2, regid[1]
+                    );
+                    break;
+                case isa::E_TYPE_IMM_ARITH:
+                case isa::E_TYPE_CMP_IMM:
+                    instr_word = isa::pack_etype(
+                        instr_property.opcode1, instr_property.opcode2, immediate
+                    );
+                    break;
+                case isa::R_TYPE_FLAG:
+                    instr_word = isa::pack_rtype(
+                        instr_property.opcode1, instr_property.opcode2, instr_property.opcode3
+                    );
+                    break;
+
+            }
+
+            /* Write instruction word to file */
+            std::string instr_word_str = syntax::word_to_string(instr_word);
+            output_file << instr_word_str;
+
+            /* Increment address */
+            address+=2;
         }
-
-        /* Create binary instruction word */
-        uint16_t instr_word;
-        switch(instr_property.instr_type)
-        {
-            case isa::E_TYPE_LOAD:
-                instr_word = isa::pack_etype(
-                    instr_property.opcode1, regid[0], immediate
-                );
-                break;
-            case isa::T_TYPE_LOAD:
-                instr_word = isa::pack_ttype(
-                    instr_property.opcode1, immediate
-                );
-                break;
-            case isa::R_TYPE_LOAD:
-            case isa::R_TYPE_IMM_ARITH:
-                instr_word = isa::pack_rtype(
-                    instr_property.opcode1, instr_property.opcode2, immediate
-                );
-                break;
-            case isa::R_TYPE_MOV:
-                instr_word = isa::pack_rtype(
-                    instr_property.opcode1, regid[0], regid[1]
-                );
-                break;
-            case isa::T_TYPE_JUMP:
-                instr_word = isa::pack_ttype(
-                    instr_property.opcode1, immediate
-                );
-                break;
-            case isa::R_TYPE_STACK:
-            case isa::R_TYPE_INCDEC:
-            case isa::R_TYPE_ARITH:
-            case isa::R_TYPE_CMP:
-                instr_word = isa::pack_rtype(
-                    instr_property.opcode1, instr_property.opcode2, regid[1]
-                );
-                break;
-            case isa::E_TYPE_IMM_ARITH:
-            case isa::E_TYPE_CMP_IMM:
-                instr_word = isa::pack_etype(
-                    instr_property.opcode1, instr_property.opcode2, immediate
-                );
-                break;
-            case isa::R_TYPE_FLAG:
-                instr_word = isa::pack_rtype(
-                    instr_property.opcode1, instr_property.opcode2, instr_property.opcode3
-                );
-                break;
-
-        }
-
-        /* Write instruction word to file */
-        std::string instr_word_str = syntax::word_to_string(instr_word);
-        output_file << instr_word_str;
-        
-        /* Increment address */
-        address+=2;
     }
 
     /* Close files */
