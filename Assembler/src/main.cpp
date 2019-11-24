@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
             if(str_instr == "jmp")
             {
                 /* Change JMP Ry to MOV PC, Ry */
-                str_instr == "mov";
+                str_instr = "mov";
                 str_operands[1] = str_operands[0];
                 str_operands[0] = "pc";
             }

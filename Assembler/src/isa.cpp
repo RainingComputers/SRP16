@@ -15,7 +15,6 @@ namespace isa
         {"ldmptru", {T_TYPE_LOAD, UNSIGNED, 0b1000, NA, NA}},
         {"ldau",    {R_TYPE_LOAD, UNSIGNED, 0b1100, 0b111011, NA}},
         {"mov",     {R_TYPE_MOV, NOIMM, 0b1001, NA, NA}},
-        {"jmp",     {R_TYPE_MOV, NOIMM, 0b1001, NA, NA}},
         {"sjmp",    {T_TYPE_JUMP, SIGNED, 0b1010, NA, NA}},
         {"sjmpf",   {T_TYPE_JUMP, SIGNED, 0b1011, NA, NA}},
         {"pop",     {R_TYPE_STACK, NOIMM, 0b1100, 0b111100, NA}},
