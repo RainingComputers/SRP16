@@ -1,5 +1,6 @@
 *.hex
-*.asm
+Assembler/*.asm
+Verilog/*.asm
 *.o
 */bin/*
 */obj/*

@@ -1,4 +1,4 @@
-.PHONY : help clean all build dirs
+.PHONY : help clean all build dirs install
 help :
 	@echo "clean"
 	@echo "      Remove auto-generated files."
@@ -8,6 +8,8 @@ help :
 	@echo "      Cross-compile to build 64bit windows executable."
 	@echo "build DEBUG=1"
 	@echo "      Build executable for debugging."
+	@echo "install"
+	@echo "      Installs the executable to PATH. Execute 'make build' first."
 
 # Name of the executable
 EXEC_NAME = srp16asm
@@ -66,3 +68,6 @@ all: dirs bin/$(BUILD_TYPE)/$(EXEC_NAME)
 
 # Build executable
 build: all
+
+install:
+	cp bin/$(BUILD_TYPE)/$(EXEC_NAME) /usr/local/bin

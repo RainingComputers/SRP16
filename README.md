@@ -3,7 +3,8 @@ SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers.
 
 ## Project Status
 ### Specification
-SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/master/Documentation/SRP16%20ISA%20Specification.pdf)
++ SRP16 ISA Specifaction [[.pdf]](Documentation/SRP16%20ISA%20Specification.pdf)
++ SRP16 Assembler Guide [[.pdf]](Documentation/SRP16%20Assembler%20Guide.pdf)
 
 ### Roadmap
 - [x] ISA Specification
@@ -21,6 +22,7 @@ SRP16 ISA Specifaction [[.pdf]](https://github.com/RainingComputers/SRP16/raw/ma
 + Memory Pointer Register or MPTR (R61)
 + Stack Pointer or SP (R62)
 + Program Counter or PC (R63)
++ POP, PUSH, INC, DEC instructions can only access General Purpose Registers R0-R31
 
 ### Instructions:
 | Instruction                       | Operation											|
