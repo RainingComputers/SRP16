@@ -26,9 +26,9 @@ namespace log
         std::cout<<"ERROR: "<<error<<"\n";
     }
 
-    void usage_error(const std::string& error)
+    void print(const std::string& error)
     {
-        std::cout<<"USAGE: "<<error<<"\n";
+        std::cout<<error<<"\n";
     }
 
     void include_error(const std::string& inc_file_name, int line_no, 

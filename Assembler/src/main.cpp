@@ -7,8 +7,18 @@
 #include "isa.hpp"
 #include "log.hpp"
 #include "file_stack.hpp"
+#include "binutil.hpp"
 
 #define MAX_TOKENS 3
+
+void print_usage()
+{
+    log::print("USAGE: srp16asm INPUTFILE OPTION OUTPUTFILE");
+    log::print("List of available OPTIONS:");
+    log::print("  -o : Intel hex file format.");
+    log::print("  -h : Hex file for verilog simulation.");
+    log::print("  -s : Hex file with debug symbols, for ISA simulator.");
+}
 
 int main(int argc, char *argv[])
 {
@@ -19,14 +29,36 @@ int main(int argc, char *argv[])
     std::map<std::string, int> symbol_table;
 
     /* Check for correct usage */
-    if(argc != 3)
+    if(argc != 4)
     {
-        log::usage_error("srp16asm INPUTFILE OUTPUTFILE");
+        print_usage();
         return EXIT_FAILURE;
     }
 
-    /* Output .hex file */
-    std::ofstream output_file(argv[2]);
+    /* Check option for output file type */ 
+    
+    std::string option = argv[2];
+    binutil::option_type output_file_mode;
+
+    if(option == "-o") output_file_mode = binutil::INTEL_HEX;
+    else if(option == "-h") output_file_mode = binutil::VERILOG_HEX;
+    else if(option == "-s") output_file_mode = binutil::HEX_DEBUG_SYMBOLS;
+    else
+    {
+        print_usage();
+        return EXIT_FAILURE;
+    }
+
+    /* Input assembly file */
+    std::string input_file = argv[1];
+    if(!file_stack::push_file(input_file, fstack))
+    {
+        log::error("Unable to open input file");
+        return EXIT_FAILURE;
+    }
+
+    /* Output file */
+    std::ofstream output_file(argv[3]);
     if(!output_file.is_open())
     {
         log::error("Unable to open output file");
@@ -42,18 +74,10 @@ int main(int argc, char *argv[])
         ==================================
     */
 
-    /* Input assembly file */
-    std::string input_file = argv[1];
-    if(!file_stack::push_file(input_file, fstack))
-    {
-        log::error("Unable to open input file");
-        return EXIT_FAILURE;
-    }
-
     /* Keep track of address */
     int address = 0;
 
-    /* Process assebmly files to build symbol table */
+    /* Process assembly files to build symbol table */
     while(true)
     {
         /* Get line from current file being processed */
@@ -145,7 +169,7 @@ int main(int argc, char *argv[])
                     fstack.back().name);                       
                 return EXIT_FAILURE;
             }
-            /* No negetive orgs */
+            /* No negative args */
             if(location <= address)
             {
                 log::syntax_error("Invalid org location", line_no,
@@ -179,7 +203,7 @@ int main(int argc, char *argv[])
                     fstack.back().name);
                 return EXIT_FAILURE;                
             }
-            /* Updtate address */
+            /* Update address */
             address+=str_operands[0].length();
         }
         else if(str_instr == ".hex")
@@ -301,12 +325,9 @@ int main(int argc, char *argv[])
         {
             int location;
             syntax::immediate_to_int(str_operands[0], location);
-            address = location;
             /* zero till org location is reached */
-            for(int i=1; i<address-1; i++)
-            {
-                output_file<<"00\n";
-            }
+            binutil::org(output_file, location-address-1, output_file_mode);
+            address = location;
         }
         else if(str_instr == ".byte")
         {
@@ -326,29 +347,19 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;    
             }
             /* Write to file */
+            binutil::write_byte(output_file, byte_num, address, output_file_mode);
             address+=1;
-            output_file<<syntax::byte_to_string(byte_num);
         }
         else if(str_instr == ".string")
         {
-            for(char c : str_operands[0])
-            {
-                /* Write to file */
-                address+=1;
-                output_file<<syntax::byte_to_string(c);
-            }
+            binutil::write_string(output_file, str_operands[0], address, output_file_mode);
+            address+=str_operands[0].length();
         }
         else if(str_instr == ".hex")
         {         
             /* Write to file */
-            for(int i=0; i<str_operands[0].length(); i+=2)
-            {
-                /* Write to file */
-                output_file<<str_operands[0][i];
-                output_file<<str_operands[0][i+1];
-                output_file<<"\n";
-                address+=1;
-            }
+            binutil::write_hex_string(output_file, str_operands[0], address, output_file_mode);
+            address += str_operands[0].length()/2;
         }
         else if(str_instr == ".include")
         {
@@ -496,14 +507,19 @@ int main(int argc, char *argv[])
 
             }
 
-            /* Write instruction word to file */
-            std::string instr_word_str = syntax::word_to_string(instr_word);
-            output_file << instr_word_str;
+            binutil::write_word(output_file, instr_word, address, output_file_mode);
 
             /* Increment address */
             address+=2;
         }
     }
+
+    /* Write EOF for Intel hex file format */
+    if(output_file_mode == binutil::INTEL_HEX)
+    {
+        binutil::write_ihex_eof(output_file);
+    }
+    
 
     /* Close files */
     output_file.close();

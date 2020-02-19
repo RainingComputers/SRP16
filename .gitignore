@@ -6,3 +6,4 @@ Verilog/*.asm
 */obj/*
 *.vcd
 *.vvp
+TODO.txt

@@ -82,7 +82,7 @@ namespace syntax
             if(operand.length() > 3) return -1;
             else if(operand.length() == 3)
             {
-                /* If 'r' is not followed by anumber, invalid */
+                /* If 'r' is not followed by a number, invalid */
                 if(!isdigit(operand[1]) || !isdigit(operand[2])) 
                     return -1;
 
@@ -95,7 +95,7 @@ namespace syntax
             }
             else if(operand.length() == 2)
             {
-                /* If 'r' is not followed by anumber, invalid */
+                /* If 'r' is not followed by a number, invalid */
                 if(!isdigit(operand[1]) ) return -1;
 
                 /* Get id and return it */
@@ -141,48 +141,5 @@ namespace syntax
         /* Check if within limits */
         if(num >= min && num <= max) return true;
         else return false;
-    }
-
-    std::string byte_to_string(int byte_num)
-    {
-        std::string instr_str;
-        
-        /* Construct hex string from int */
-        for(int i : {1, 0})
-        { 
-            /* Get ith 4 bits from int */
-            unsigned char digit = (byte_num >> (i*4)) & 0x000F;
-            /* Convert to valid char */
-            if(digit <= 9) digit += 48;
-            else digit += 55;
-            /* Add to string  */
-            instr_str.push_back(digit);
-        }
-
-        /* Add new line */
-        instr_str.push_back('\n');
-
-        return instr_str;
-    }
-
-    std::string word_to_string(uint16_t word_int)
-    {
-        std::string instr_str;
-        
-        /* Construct hex string from int */
-        for(int i : {1, 0, 3, 2})
-        { 
-            /* Get ith 4 bits from int */
-            unsigned char digit = (word_int >> (i*4)) & 0x000F;
-            /* Convert to valid char */
-            if(digit <= 9) digit += 48;
-            else digit += 55;
-            /* Add to string  */
-            instr_str.push_back(digit);
-            /* New line after a byte and the end */
-            if(i==0||i==2) instr_str.push_back('\n');
-        }
-
-        return instr_str;
     }
 }

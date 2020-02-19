@@ -61,11 +61,11 @@ SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers.
 | SUB Rx                            | A ⟵ A-Rx											|
 | ADC Rx                            | A ⟵ A+Rx+carry									|
 | SBB Rx                            | A ⟵ A-Rx-carry									|
-| AND Rx                            | A ⟵ A&Rx											|				
-| OR Rx                             | A ⟵ A|Rx											|				
-| XOR Rx                            | A ⟵ A^Rx											|				
-| SLA Rx                            | A ⟵ A<<<Rx										|				
-| SRA Rx                            | A ⟵ A>>>Rx										|				
+| AND Rx                            | A ⟵ A&Rx											|			
+| OR Rx                             | A ⟵ A|Rx											|			
+| XOR Rx                            | A ⟵ A^Rx											|			
+| SLA Rx                            | A ⟵ A<<<Rx										|			
+| SRA Rx                            | A ⟵ A>>>Rx										|			
 | SLL Rx                            | A ⟵ A<<Rx											|
 | SRL Rx                            | A ⟵ A>>Rx											|
 | CLI 8-bit-signed-immediate        | if(A<immediate): flag ⟵ 1 <br> else: flag ⟵ 0		|
