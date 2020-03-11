@@ -318,7 +318,10 @@ int main(int argc, char *argv[])
 
         /* Check for assembler preprocessors */
         if(str_instr.back() == ':')
-            continue;
+        {
+            binutil::dbgsym::label(output_file, fstack.back().name, line_no, 
+                str_instr);
+        }
         else if(str_instr == ".equ")
             continue;
         else if(str_instr == ".org")
@@ -374,6 +377,12 @@ int main(int argc, char *argv[])
         /* if not a preprocessor, then it is a cpu instruction */
         else
         {
+            /* Insert debug symbol for ISA simulator (-s flag) */
+            if(output_file_mode == binutil::HEX_DEBUG_SYMBOLS)
+            {
+                binutil::dbgsym::line(output_file, fstack.back().name, line_no);
+            }
+
             /* Check for pseudo instructions */
             if(str_instr == "jmp")
             {

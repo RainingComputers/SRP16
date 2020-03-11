@@ -7,6 +7,11 @@
             "label": "asm_debugbuild",
             "type": "shell",
             "command": "cd Assembler/; make build DEBUG=1"
+        },
+        {
+            "label": "sim_debugbuild",
+            "type": "shell",
+            "command": "cd ISASimulator/; make build DEBUG=1"
         }
     ]
 }

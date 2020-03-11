@@ -18,6 +18,13 @@ namespace binutil
         int address, option_type mode);
     void write_string(std::ofstream& output_file, const std::string& string_data,
         int address, option_type mode);
+
+    namespace dbgsym
+    {
+        void line(std::ofstream& output_file, const std::string& file_name, int line_no);
+        void label(std::ofstream& output_file, const std::string& file_name, int line_no, 
+            const std::string& label);
+    }
 }
 
 #endif

@@ -56,7 +56,7 @@ namespace binutil
 
     void org(std::ofstream& output_file, int size, option_type mode)
     {
-        if(mode == VERILOG_HEX)
+        if(mode == VERILOG_HEX || mode == HEX_DEBUG_SYMBOLS)
         {
             for(int i = 0; i < size; i++)
                 output_file << "00\n";
@@ -88,7 +88,7 @@ namespace binutil
             /* Write the entire record to output file */
             output_file << ihex_start+ihex_bytes+ihex_addr+ihex_type+ihex_data+ihex_checksum; 
         }
-        else if(mode == VERILOG_HEX)
+        else if(mode == VERILOG_HEX || mode == HEX_DEBUG_SYMBOLS)
         {
             std::string instr_word_str = word_to_string(word);
             output_file << instr_word_str;
@@ -111,7 +111,7 @@ namespace binutil
             /* Write the entire record to output file */
             output_file << ihex_start+ihex_bytes+ihex_addr+ihex_type+ihex_data+ihex_checksum; 
         }
-        else if(mode == VERILOG_HEX)
+        else if(mode == VERILOG_HEX || mode == HEX_DEBUG_SYMBOLS)
         {
             std::string instr_word_str = byte_to_string(byte);
             output_file << instr_word_str;
@@ -144,7 +144,7 @@ namespace binutil
             output_file << ihex_start+ihex_bytes+ihex_addr+ihex_type+ihex_data+ihex_checksum; 
 
         }
-        else if(mode == VERILOG_HEX)
+        else if(mode == VERILOG_HEX || mode == HEX_DEBUG_SYMBOLS)
         {
             for(int i=0; i<hex_string.length(); i+=2)
             {
@@ -181,7 +181,7 @@ namespace binutil
             output_file << ihex_start+ihex_bytes+ihex_addr+ihex_type+ihex_data+ihex_checksum; 
             
         }
-        else if(mode == VERILOG_HEX)
+        else if(mode == VERILOG_HEX || mode == HEX_DEBUG_SYMBOLS)
         {
             for(char c : string_data)
                 write_byte(output_file, c, address, mode);
@@ -191,6 +191,21 @@ namespace binutil
     void write_ihex_eof(std::ofstream& output_file)
     {
         output_file << ":00000001FF";
+    }
+
+    /* Functions to help insert debug symbols in binary */
+    namespace dbgsym
+    {
+        void line(std::ofstream& output_file, const std::string& file_name, int line_no)
+        {
+            output_file<<".line "<<line_no<<" "<<file_name<<"\n";
+        }
+
+        void label(std::ofstream& output_file, const std::string& file_name, int line_no, 
+            const std::string& label)
+        {
+            output_file<<".label "<<line_no<<" "<<file_name<<" "<<label<<"\n";
+        }
     }
 
 }

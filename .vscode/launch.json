@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Assembler",
+            "name": "Assembler, Verilog Hex",
             "type": "cppdbg",
             "request": "launch",
             "preLaunchTask": "asm_debugbuild",
@@ -33,6 +33,46 @@
             "args": ["prog.asm", "-o", "prog.hex"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/Assembler",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug Assembler, Debug Hex",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask": "asm_debugbuild",
+            "program": "${workspaceFolder}/Assembler/bin/debug/srp16asm",
+            "args": ["prog.asm", "-s", "prog.hex"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/Assembler",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug ISA Simulator",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask": "sim_debugbuild",
+            "program": "${workspaceFolder}/ISASimulator/bin/debug/srp16sim",
+            "args": ["prog.dhex"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/ISASimulator",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",

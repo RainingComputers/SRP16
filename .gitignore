@@ -1,5 +1,7 @@
 *.hex
+*.dhex
 Assembler/*.asm
+ISASimulator/*.asm
 Verilog/*.asm
 *.o
 */bin/*
