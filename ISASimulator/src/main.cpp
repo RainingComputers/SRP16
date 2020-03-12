@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <regex>
 
 #include "cpu.hpp"
 #include "hexstr.hpp"
@@ -12,26 +13,6 @@
 void print_usage()
 {
     std::cout<<"srp16sim DHEXFILE"<<std::endl;  
-}
-
-void print_reg(cpu::srp16cpu& cpu)
-{
-    std::cout << "IR = " << int_to_hex<uint16_t>(cpu.instruction_reg) << std::endl;
-    std::cout << "PC = " << int_to_hex<uint16_t>(cpu.registers[cpu::PC]) << std::endl;
-    std::cout << "A = " << int_to_hex<uint16_t>(cpu.registers[cpu::A]) << std::endl;
-    std::cout << "MPTR = " << int_to_hex<uint16_t>(cpu.registers[cpu::MPTR]) << std::endl;
-    std::cout << "SP = " << int_to_hex<uint16_t>(cpu.registers[cpu::SP]) << std::endl;
-    
-    for(int i = 0; i < 32; i++)
-    {
-        std::cout<<"R"<<i<<" = ";
-        std::cout<<int_to_hex<uint16_t>(cpu.registers[i])<<std::endl;
-    }
-}
-
-void invalid_command()
-{
-    std::cout << "Invalid command." << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -49,7 +30,7 @@ int main(int argc, char *argv[])
     /* Open input file */    
     std::ifstream input_file(argv[1]);
 
-    /* Load program into memory */
+    /* Load program into memory and build symbol-table */
     std::string line;
     int address_count = 0;
     while(std::getline(input_file, line))
@@ -58,63 +39,83 @@ int main(int argc, char *argv[])
         address_count+=1;
     }
 
+    /* Regular expressions for some commands */
+    std::regex mem_regex(R"(mem((\[[0-9A-Fa-fx]+:[0-9A-Fa-fx]+\])|(\[[0-9A-Fa-fx]+\])))");
+
     /* Start simulation */
     while(true)
     {
         std::string command;
         
         /* Interactive command prompt */
-        std::cout << ">>> ";
+        std::cout << "(pc@";
+        std::cout << hexstr(vcpu.registers[cpu::PC]);
+        std::cout << ") ";
         std::cin >> command;
 
         /* Simulator commands */
-        if(command == "step" || command == "s")
-            vcpu.step();
-        else if(command == "reg")
-            print_reg(vcpu);
-        else if(command == "exit")
-            return EXIT_SUCCESS;
-        else if(command.substr(0, 3) == "mem")
+        if(command == "step")
         {
-            int colon_pos = -1;
+            /* Step cpu by one instruction */
+            vcpu.step();
+        }
+        else if(command == "reg")
+        {
+            /* Print all registers in the CPU */
 
-            /* Syntax check the command */
-            if(command[3] != '[' || command.back() != ']')
+            std::cout << "ir = " << hexstr<uint16_t>(vcpu.instruction_reg) 
+                << std::endl;
+            std::cout << "pc = " << hexstr<uint16_t>(vcpu.registers[cpu::PC]) 
+                << std::endl;
+            std::cout << "a = " << hexstr<uint16_t>(vcpu.registers[cpu::A]) 
+                << std::endl;
+            std::cout << "mptr = " << hexstr<uint16_t>(vcpu.registers[cpu::MPTR]) 
+                << std::endl;
+            std::cout << "sp = " << hexstr<uint16_t>(vcpu.registers[cpu::SP]) 
+                << std::endl;
+            
+            for(int i = 0; i < 32; i++)
             {
-                invalid_command();
-                continue;
+                std::cout<<"r"<<i<<" = ";
+                std::cout<<hexstr<uint16_t>(vcpu.registers[i])<<std::endl;
+            }
+        }
+        else if(std::regex_match(command, mem_regex))
+        {
+            int start, end;
+
+            /* Parse command and get start and end address */
+            int colon_pos = command.find(":");
+            if(colon_pos == std::string::npos)
+            {
+                /* For only one single address */
+                start = std::stoi(command.substr(4, command.length()-5), 0, 16);
+                end = start+1;
+            }
+            else
+            {
+                /* For range of addresses */
+                start = std::stoi(command.substr(4, colon_pos-4), 0, 16);
+                end = std::stoi(command.substr(colon_pos+1, 
+                    command.length()-colon_pos), 0, 16);
             }
 
-            for(int i = 4; i < command.length()-1; i++)
+            /* Print that section of memory */
+            for(uint16_t i = start; i < end; i++)
             {
-                char c = command[i];
-
-                /* Check proper usage of range(:) symbol */
-                if(c == ':')
-                    if(i > 4 && colon_pos != -1) 
-                    {
-                        colon_pos = i;
-                        continue;
-                    }
-                    else 
-                    {
-                        invalid_command();
-                        break;
-                    }
-
-                /* Check if valid hex digit */
-                if(!(isdigit(c) || (c>='a' && c<='f')))
-                {
-                    invalid_command();
-                    break;
-                }
+                std::cout << "mem[" << hexstr<uint16_t>(i) << "] = ";
+                std::cout << hexstr<uint8_t>(vcpu.memory[i]) << std::endl;
             }
-
-            /* Parse the command */
-
+            
+        }
+        else if(command == "exit")
+        {
+            return EXIT_SUCCESS;
         }
         else
-            invalid_command();
+        {
+            std::cout << "Invalid command" << std::endl;
+        }
         
     }
 }

@@ -21,7 +21,6 @@ namespace cpu
         void step();
         void reset();
     };
-
 }
 
 #endif

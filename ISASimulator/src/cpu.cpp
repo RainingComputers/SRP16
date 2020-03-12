@@ -1,5 +1,4 @@
 #include "cpu.hpp"
-#include "hexstr.hpp"
 
 namespace cpu
 {
@@ -124,7 +123,7 @@ namespace cpu
             {
                 /* ST@MPTR Instruction */
                 uint8_t lower = registers[e_type_reg1];
-                uint8_t upper = registers[e_type_reg1] << 8;
+                uint8_t upper = registers[e_type_reg1] >> 8;
                 memory[registers[MPTR]] = lower;
                 memory[registers[MPTR]+1] = upper;
                 registers[MPTR] += e_type_imm_sign;
@@ -142,7 +141,7 @@ namespace cpu
             
             case 0b0101:
             {
-                /* ST@MPTR Instruction */
+                /* STB@MPTR Instruction */
                 uint8_t lower = registers[e_type_reg1];
                 memory[registers[MPTR]] = lower;
                 registers[MPTR] += e_type_imm_sign;
@@ -179,7 +178,5 @@ namespace cpu
 
         /* Increment program counter */
         if(inc_pc) registers[PC]+=2;
-
-
     }
 }
