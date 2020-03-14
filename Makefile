@@ -14,6 +14,8 @@ clean:
 
 build:
 	make -C Assembler/ build
+	make -C ISASimulator/ build
 
 install:
 	make -C Assembler/ install
+	make -C ISASimulator/ install

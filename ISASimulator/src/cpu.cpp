@@ -67,11 +67,19 @@ namespace cpu
         registers[PC] = 0;
         flag = false;
         inc_pc = true;
+        illegal_instruction = false;
+        carry = 0;
+    }
+
+    bool srp16cpu::illegal()
+    {
+        return illegal_instruction;
     }
 
     void srp16cpu::step()
     {
         inc_pc = true;
+        illegal_instruction = false;
 
         /* Load instruction from memory */
         uint16_t instruction_lower = memory[registers[PC]];
@@ -173,6 +181,109 @@ namespace cpu
                     registers[r_type_reg1] = registers[r_type_reg2];
 
                 if(r_type_reg1 == PC) inc_pc = false;
+
+                break;
+            }
+
+            case 0b1010:
+            {
+                /* SJMP Instruction */
+                registers[PC] += t_type_imm_sign;
+                inc_pc = false; 
+                break;
+            }
+
+            case 0b1011:
+            {
+                /* SJMPF Instruction */
+                if(flag)
+                {
+                    registers[PC] += t_type_imm_sign;
+                    inc_pc = false; 
+                }
+                break;
+            }
+
+            case 0b1100:
+            {
+                /* R-type opcode1=1100 Instructions */
+                switch (r_type_opcode2)
+                {
+                    case 0b111011:
+                    {
+                        /* LDAU Instruction */
+                        registers[A] = 
+                            (r_type_imm << 12) | (registers[A] & 0x03ff);
+                        break;
+                    }
+
+                    case 0b111100:
+                    {
+                        /* POP Instruction */
+                        if(r_type_reg2 > 31)
+                            illegal_instruction = true;
+                        else
+                        {
+                            uint16_t lower = memory[registers[SP]];
+                            uint16_t upper = memory[registers[SP]+1];
+                            registers[r_type_reg2] = (upper << 8) | lower;
+                            registers[SP]+=2;
+                        }
+
+                        break;
+                    }
+
+                    case 0b111101:
+                    {
+                        /* PUSH Instruction */
+                        if(r_type_reg2 > 31)
+                            illegal_instruction = true;
+                        else
+                        {
+                            uint16_t lower = registers[r_type_reg2];
+                            uint16_t upper = (registers[r_type_reg2] >> 8);
+                            memory[registers[SP]-1] = upper;
+                            memory[registers[SP]-2] = lower;
+                            registers[SP]-=2;
+                        }
+
+                        break;
+                    }
+
+                    case 0b111110:
+                    {
+                        /* INC Instruction */
+                        if(r_type_reg2 > 31)
+                            illegal_instruction = true;
+                        else
+                        {
+                            registers[r_type_reg2]++;
+                        }
+
+                        break;
+                    }
+
+                    case 0b111111:
+                    {
+                        /* DEC Instruction */
+                        if(r_type_reg2 > 31)
+                            illegal_instruction = true;
+                        else
+                        {
+                            registers[r_type_reg2]--;
+                        }
+
+                        break;
+                    }
+
+                }
+
+                break;
+            }
+
+            default:
+            {
+                illegal_instruction = true;
             }
         }
 

@@ -2,17 +2,16 @@
     SRP16 ISA Simulator
 */
 
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <regex>
 
 #include "cpu.hpp"
-#include "hexstr.hpp"
+#include "log.hpp"
 
 void print_usage()
 {
-    std::cout<<"srp16sim DHEXFILE"<<std::endl;  
+    log::print("USAGE: srp16sim DHEXFILE");  
 }
 
 int main(int argc, char *argv[])
@@ -41,6 +40,7 @@ int main(int argc, char *argv[])
 
     /* Regular expressions for some commands */
     std::regex mem_regex(R"(mem((\[[0-9A-Fa-fx]+:[0-9A-Fa-fx]+\])|(\[[0-9A-Fa-fx]+\])))");
+    std::regex id_regex(R"(r\d+)");
 
     /* Start simulation */
     while(true)
@@ -63,22 +63,48 @@ int main(int argc, char *argv[])
         {
             /* Print all registers in the CPU */
 
-            std::cout << "ir = " << hexstr<uint16_t>(vcpu.instruction_reg) 
-                << std::endl;
-            std::cout << "pc = " << hexstr<uint16_t>(vcpu.registers[cpu::PC]) 
-                << std::endl;
-            std::cout << "a = " << hexstr<uint16_t>(vcpu.registers[cpu::A]) 
-                << std::endl;
-            std::cout << "mptr = " << hexstr<uint16_t>(vcpu.registers[cpu::MPTR]) 
-                << std::endl;
-            std::cout << "sp = " << hexstr<uint16_t>(vcpu.registers[cpu::SP]) 
-                << std::endl;
-            
+            log::print_symbol<uint16_t>(vcpu.instruction_reg, "ir");
+            log::print_symbol<uint16_t>(vcpu.registers[cpu::PC], "pc");
+            log::print_symbol<uint16_t>(vcpu.registers[cpu::A], "a");
+            log::print_symbol<uint16_t>(vcpu.registers[cpu::MPTR], "mptr");
+            log::print_symbol<uint16_t>(vcpu.registers[cpu::SP], "sp");
+
             for(int i = 0; i < 32; i++)
             {
-                std::cout<<"r"<<i<<" = ";
-                std::cout<<hexstr<uint16_t>(vcpu.registers[i])<<std::endl;
+                log::print_symbol<uint16_t>(vcpu.registers[i], "r", i);
             }
+        }
+        else if(command == "ir")
+        {
+            log::print_symbol<uint16_t>(vcpu.instruction_reg, "ir");
+        }
+        else if(command == "pc")
+        {
+            log::print_symbol<uint16_t>(vcpu.registers[cpu::PC], "pc");           
+        }
+        else if(command == "a")
+        {
+            log::print_symbol<uint16_t>(vcpu.registers[cpu::A], "a");           
+        }
+        else if(command == "mptr")
+        {
+            log::print_symbol<uint16_t>(vcpu.registers[cpu::MPTR], "mptr");           
+        }
+        else if(command == "sp")
+        {
+            log::print_symbol<uint16_t>(vcpu.registers[cpu::SP], "sp");          
+        }
+        else if(std::regex_match(command, id_regex))
+        {
+            int reg_id = std::stoi(command.substr(1));
+            
+            if(reg_id > 63 || reg_id < 0)
+            {
+                log::print("Invalid register");
+                continue;
+            }
+
+            log::print_symbol<uint16_t>(vcpu.registers[reg_id], "r", reg_id);
         }
         else if(std::regex_match(command, mem_regex))
         {
@@ -114,7 +140,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            std::cout << "Invalid command" << std::endl;
+            log::print("Unknown command or symbol name");
         }
         
     }

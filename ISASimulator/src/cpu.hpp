@@ -10,6 +10,8 @@ namespace cpu
     class srp16cpu
     {
         bool inc_pc;
+        bool illegal_instruction;
+        uint16_t carry;
 
     public:
         srp16cpu();
@@ -20,6 +22,7 @@ namespace cpu
 
         void step();
         void reset();
+        bool illegal();
     };
 }
 

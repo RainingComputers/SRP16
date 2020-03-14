@@ -25,7 +25,7 @@
             ]
         },
         {
-            "name": "Debug Assembler, Intel Hex",
+            "name": "Assembler, Intel Hex",
             "type": "cppdbg",
             "request": "launch",
             "preLaunchTask": "asm_debugbuild",
@@ -45,7 +45,7 @@
             ]
         },
         {
-            "name": "Debug Assembler, Debug Hex",
+            "name": "Assembler, Debug Hex",
             "type": "cppdbg",
             "request": "launch",
             "preLaunchTask": "asm_debugbuild",
@@ -65,7 +65,7 @@
             ]
         },
         {
-            "name": "Debug ISA Simulator",
+            "name": "ISA Simulator",
             "type": "cppdbg",
             "request": "launch",
             "preLaunchTask": "sim_debugbuild",
