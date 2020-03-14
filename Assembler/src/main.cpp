@@ -319,8 +319,11 @@ int main(int argc, char *argv[])
         /* Check for assembler preprocessors */
         if(str_instr.back() == ':')
         {
-            binutil::dbgsym::label(output_file, fstack.back().name, line_no, 
-                str_instr);
+            if(output_file_mode == binutil::HEX_DEBUG_SYMBOLS)
+            {
+                binutil::dbgsym::label(output_file, fstack.back().name, line_no, 
+                    str_instr);
+            }
         }
         else if(str_instr == ".equ")
             continue;
@@ -405,7 +408,7 @@ int main(int argc, char *argv[])
             }
 
             /* Process string operands to register id or immediate integers */
-            int immediate, regid[2];
+            int immediate, opr_regid[2];
             for(int i=0; i<instr_format.no_operands; i++)
             {
                 switch(instr_format.operand_type[i])
@@ -426,9 +429,9 @@ int main(int argc, char *argv[])
                                 reg_range = 15;
                                 break;
                         }
-                        /* Get regid and check if valid */
-                        regid[i] = syntax::get_reg_id(str_operands[i], reg_range);
-                        if(regid[i] < 0)
+                        /* Get operand regid and check if valid */
+                        opr_regid[i] = syntax::get_reg_id(str_operands[i], reg_range);
+                        if(opr_regid[i] < 0)
                         {
                             log::operand_error("Invalid register", line_no,
                                 fstack.back().name);
@@ -470,7 +473,7 @@ int main(int argc, char *argv[])
             {
                 case isa::E_TYPE_LOAD:
                     instr_word = isa::pack_etype(
-                        instr_property.opcode1, regid[0], immediate
+                        instr_property.opcode1, opr_regid[0], immediate
                     );
                     break;
                 case isa::T_TYPE_LOAD:
@@ -486,7 +489,7 @@ int main(int argc, char *argv[])
                     break;
                 case isa::R_TYPE_MOV:
                     instr_word = isa::pack_rtype(
-                        instr_property.opcode1, regid[0], regid[1]
+                        instr_property.opcode1, opr_regid[0], opr_regid[1]
                     );
                     break;
                 case isa::T_TYPE_JUMP:
@@ -499,7 +502,7 @@ int main(int argc, char *argv[])
                 case isa::R_TYPE_ARITH:
                 case isa::R_TYPE_CMP:
                     instr_word = isa::pack_rtype(
-                        instr_property.opcode1, instr_property.opcode2, regid[1]
+                        instr_property.opcode1, instr_property.opcode2, opr_regid[0]
                     );
                     break;
                 case isa::E_TYPE_IMM_ARITH:
