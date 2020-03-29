@@ -65,7 +65,7 @@ module alu(opcode, operand, read, write, writeu, clk, accout, flag);
             `SUB: accumulator_reg <= accumulator - operand;
 
             /* Substract with borrow */
-            `SBB: accumulator_reg <= accumulator - operand - carry;
+            `SBB: accumulator_reg <= accumulator + ~operand + carry;
 
             /* Shift left arithmatic */
             `SLA: accumulator_reg <= $signed(accumulator) <<< operand;

@@ -11,6 +11,19 @@ namespace cpu
         T_TYPE_OFFSET
     };
 
+    static int16_t register_overflow(uint16_t op1, uint16_t op2, int16_t carry=0)
+    {
+        /* 
+            Cast to int32 from int16 and add operands and carry,
+            if there is overflow, it can be detected with mask 
+            0xffff0000
+        */
+        int32_t result_with_overflow = (int32_t)op1 + (int32_t)op2 + (int32_t)carry;
+        int16_t new_carry = (result_with_overflow & 0xffff0000) > 0;
+
+        return new_carry;
+    }
+
     static uint16_t get_field(uint16_t word, field instr_field)
     {
         switch (instr_field)
@@ -63,6 +76,7 @@ namespace cpu
 
     void srp16cpu::reset()
     {
+        /* Initial state for cpu */
         registers[MPTR] = 0;
         registers[PC] = 0;
         flag = false;
@@ -213,7 +227,7 @@ namespace cpu
                     {
                         /* LDAU Instruction */
                         registers[A] = 
-                            (r_type_imm << 12) | (registers[A] & 0x03ff);
+                            (r_type_imm << 12) | (registers[A] & 0x0fff);
                         break;
                     }
 
@@ -273,12 +287,278 @@ namespace cpu
                             registers[r_type_reg2]--;
                         }
 
+                        break;                        
+                    }
+
+                    case 0b100011:
+                    {
+                        /* SLAI Instruction */
+                        /* TODO: Remove this instructon */
+                        registers[A] = (int16_t)registers[A] << r_type_imm;
+
                         break;
                     }
 
+                    case 0b100100:
+                    {
+                        /* SRAI Instruction */
+                        /* Cast to signed int so that c++ performs arithmatic shift */
+                        registers[A] = (int16_t)registers[A] >> r_type_imm;
+                        break;
+                    }
+
+                    case 0b100101:
+                    {
+                        /* SLLI Instruction */
+                        registers[A] <<= r_type_imm;
+
+                        break;
+                    }
+
+                    case 0b100110:
+                    {
+                        /* SRLI Instruction */
+                        registers[A] >>= r_type_imm;
+
+                        break;
+                    }
+
+                    case 0b000001:
+                    {
+                        /* ADD Instrucion */
+                        carry = register_overflow(registers[A], registers[r_type_reg2]);
+                        registers[A] += registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b000010:
+                    {
+                        /* SUB Instrucion */
+                        carry = register_overflow(registers[A], -1*registers[r_type_reg2]);
+                        registers[A] -= registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b001101:
+                    {
+                        /* ADC Instruction */
+                        carry = register_overflow(registers[A], registers[r_type_reg2],
+                            carry);
+                        registers[A] += registers[r_type_reg2] + carry;
+
+                        break;
+                    }
+
+                    case 0b001110:
+                    {
+                        /* SBB Instrution */
+                        carry = register_overflow(registers[A], ~registers[r_type_reg2],
+                            carry);
+                        registers[A] += (~registers[r_type_reg2] + carry);
+
+                        break;                        
+                    }
+
+                    case 0b000111:
+                    {
+                        /* AND Instruction */
+                        registers[A] &= registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b001000:
+                    {
+                        /* OR Instruction */
+                        registers[A] |= registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b001001:
+                    {
+                        /* XOR Instruction */
+                        registers[A] ^= registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b000011:
+                    {
+                        /* SLA Instruction */
+                        /* TODO: Remove this instructon */
+                        registers[A] = (int16_t)registers[A] << registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b000100:
+                    {
+                        /* SRA Instruction */
+                        /* Cast to signed int so that c++ performs arithmatic shift */
+                        registers[A] = (int16_t)registers[A] >> registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b000101:
+                    {
+                        /* SLL Instruction */
+                        registers[A] <<= registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b000110:
+                    {
+                        /* SRL Instruction */
+                        registers[A] >>= registers[r_type_reg2];
+
+                        break;
+                    }
+
+                    case 0b001010:
+                    {
+                        /* CL Instruction */
+                        if(registers[A] < registers[r_type_reg2]) flag = true;
+                        else flag = false;
+
+                        break;
+                    }
+
+                    case 0b001011:
+                    {
+                        /* CG Instruction */
+                        if(registers[A] > registers[r_type_reg2]) flag = true;
+                        else flag = false;
+
+                        break;
+                    }
+
+                    case 0b001100:
+                    {
+                        /* CE Instruction */
+                        if(registers[A] == registers[r_type_reg2]) flag = true;
+                        else flag = false;
+
+                        break;
+                    }
+
+                    case 0b010000:
+                    {
+                        switch(r_type_opcode3)
+                        {
+
+                            case 0b000000:
+                            {
+                                /* NOTF Instruction */
+                                flag = !flag;
+                                break;
+                            }
+                            
+                            default:
+                            {
+                                illegal_instruction = true;
+                            }
+                        }
+                    }
                 }
 
                 break;
+            }
+
+            case 0b1101:
+            {
+                switch (e_type_opcode2)
+                {
+                    case 0b0001:
+                    {
+                        /* ADDI Instruction */
+                        carry = register_overflow(registers[A], e_type_imm_sign);
+                        registers[A] += e_type_imm_sign;
+
+                        break;
+
+                    }
+
+                    case 0b0111:
+                    {
+                        /* ANDI Instruction */
+                        registers[A] &= e_type_imm_sign;
+                        
+                        break;
+                    }
+
+                    case 0b1000:
+                    {
+                        /* ORI Instruction */
+                        registers[A] |= e_type_imm_sign;
+                        
+                        break;
+                    }
+
+                    case 0b1001:
+                    {
+                        /* XORI Instruction */
+                        registers[A] ^= e_type_imm_sign;
+                        
+                        break;
+                    }
+
+                    case 0b1010:
+                    {
+                        /* CLI Instruction */
+                        if(registers[A] < e_type_imm_sign) flag = true;
+                        else flag = false;
+
+                        break;
+                    }
+
+                    case 0b1011:
+                    {
+                        /* CGI Instruction */
+                        if(registers[A] > e_type_imm_sign) flag = true;
+                        else flag = false;
+
+                        break;
+                    }
+
+                    case 0b1100:
+                    {
+                        /* CEI Instruction */
+                        if(registers[A] == e_type_imm_sign) flag = true;
+                        else flag = false;
+
+                        break;
+                    }
+
+                    case 0b1101:
+                    {
+                        /* ADCI Instruction */
+                        carry = register_overflow(registers[A], e_type_imm_sign,
+                            carry);
+                        registers[A] += e_type_imm_sign + carry;
+
+                        break;
+                    }
+
+                    case 0b1110:
+                    {
+                        /* SBBI Instruction */
+                        carry = register_overflow(registers[A], ~e_type_imm_sign,
+                            carry);
+                        registers[A] += (~e_type_imm_sign + carry);
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        illegal_instruction = true;
+                    }
+                }
             }
 
             default:

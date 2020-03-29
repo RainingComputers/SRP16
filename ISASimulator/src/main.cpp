@@ -68,6 +68,8 @@ int main(int argc, char *argv[])
             log::print_symbol<uint16_t>(vcpu.registers[cpu::A], "a");
             log::print_symbol<uint16_t>(vcpu.registers[cpu::MPTR], "mptr");
             log::print_symbol<uint16_t>(vcpu.registers[cpu::SP], "sp");
+            log::print_symbol<uint16_t>(vcpu.carry, "carry");
+            log::print_symbol<uint16_t>(vcpu.flag, "flag");
 
             for(int i = 0; i < 32; i++)
             {
@@ -93,6 +95,14 @@ int main(int argc, char *argv[])
         else if(command == "sp")
         {
             log::print_symbol<uint16_t>(vcpu.registers[cpu::SP], "sp");          
+        }
+        else if(command == "carry")
+        {
+            log::print_symbol<uint16_t>(vcpu.carry, "carry");          
+        }
+        else if(command == "flag")
+        {
+            log::print_symbol<uint16_t>(vcpu.flag, "flag");          
         }
         else if(std::regex_match(command, id_regex))
         {

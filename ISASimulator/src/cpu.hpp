@@ -11,13 +11,13 @@ namespace cpu
     {
         bool inc_pc;
         bool illegal_instruction;
-        uint16_t carry;
 
     public:
         srp16cpu();
         uint16_t instruction_reg;
         uint16_t registers[64];
         uint8_t memory[65536];
+        int16_t carry;
         bool flag;
 
         void step();
