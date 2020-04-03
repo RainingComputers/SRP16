@@ -319,6 +319,9 @@ int main(int argc, char *argv[])
         /* Check for assembler preprocessors */
         if(str_instr.back() == ':')
         {
+            /* Remove colon at the end */
+            str_instr.pop_back();
+            /* Create .label debug symbol */
             if(output_file_mode == binutil::HEX_DEBUG_SYMBOLS)
             {
                 binutil::dbgsym::label(output_file, fstack.back().name, line_no, 
@@ -383,6 +386,7 @@ int main(int argc, char *argv[])
             /* Insert debug symbol for ISA simulator (-s flag) */
             if(output_file_mode == binutil::HEX_DEBUG_SYMBOLS)
             {
+                /* Create .line debug symbol */
                 binutil::dbgsym::line(output_file, fstack.back().name, line_no);
             }
 

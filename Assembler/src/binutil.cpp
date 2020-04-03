@@ -198,13 +198,13 @@ namespace binutil
     {
         void line(std::ofstream& output_file, const std::string& file_name, int line_no)
         {
-            output_file<<".line "<<line_no<<" "<<file_name<<"\n";
+            output_file<<".line "<<line_no<<" \""<<file_name<<"\"\n";
         }
 
         void label(std::ofstream& output_file, const std::string& file_name, int line_no, 
             const std::string& label)
         {
-            output_file<<".label "<<line_no<<" "<<file_name<<" "<<label<<"\n";
+            output_file<<".label "<<line_no<<" \""<<file_name<<"\" "<<label<<"\n";
         }
     }
 

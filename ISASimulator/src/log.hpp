@@ -23,6 +23,11 @@ namespace log
         std::cout << error << "\n";
     }
 
+    void line(int line_no, const std::string& file_name)
+    {
+        std::cout<<"Line "<<line_no<<" @ "<<file_name << std::endl;
+    }
+
     template <typename T>
     void print_symbol(T i, const std::string& symbol_name, int suffix = -1)
     {

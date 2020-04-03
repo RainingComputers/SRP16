@@ -10,7 +10,9 @@ help :
 clean:
 	make -C Verilog/ clean
 	make -C Assembler/ clean
-	rm -f  */*.hex
+	rm -f */*.hex
+	rm -f */*.dhex
+	rm -f */*test.asm
 
 build:
 	make -C Assembler/ build

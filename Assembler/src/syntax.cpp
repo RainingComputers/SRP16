@@ -12,7 +12,7 @@ namespace syntax
         std::string operands[], int max_tokens, 
         int &token_count)
     {
-        /* Remove commas and tabs */
+        /* Remove tabs */
         std::replace_if(line.begin(), line.end(), 
             [](char c)->bool{return isspace(c);}, ' ');
         /* Add space at the end to ensure last token is processed */

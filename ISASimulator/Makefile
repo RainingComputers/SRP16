@@ -14,6 +14,9 @@ help :
 # Name of the executable
 EXEC_NAME = srp16sim
 
+# Linked libs
+LIBS = -lreadline
+
 # C++ compiler
 CXX ?= g++
 
@@ -62,7 +65,7 @@ dirs:
 
 # Linking all object files to executable 
 bin/$(BUILD_TYPE)/$(EXEC_NAME): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o bin/$(BUILD_TYPE)/$(EXEC_NAME) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o bin/$(BUILD_TYPE)/$(EXEC_NAME) $(OBJECTS) $(LIBS)
 
 all: dirs bin/$(BUILD_TYPE)/$(EXEC_NAME) 
 
