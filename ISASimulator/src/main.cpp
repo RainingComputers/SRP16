@@ -46,6 +46,11 @@ int main(int argc, char *argv[])
 
     /* Open input file */    
     std::ifstream input_file(argv[1]);
+    if(!input_file)
+    {
+        log::print("ERROR: Unable to open input file");
+        return EXIT_FAILURE;
+    }
 
     /* Load program into memory and build symbol-table */
     std::string line;
@@ -125,6 +130,8 @@ int main(int argc, char *argv[])
     update_line_no();
 
     /* Start simulation */
+    std::string command = "";
+    std::string prev_command = "";
     while(true)
     {
         /* Interactive command prompt */
@@ -134,13 +141,11 @@ int main(int argc, char *argv[])
         /* Get input command for input */
         rl_ignore_completion_duplicates = 1;
         char* input = readline(prompt.c_str());
-        std::string command(input);
+        prev_command = command;
+        command = std::string(input);
 
-        /* Add command to history, avoid duplicaates */
-        HIST_ENTRY* history = previous_history();
-        if(history == NULL)
-            add_history(input);
-        else if(strcmp(history->line, input) != 0)
+        /* Add to history */
+        if(command.length() != 0 && command != prev_command)
             add_history(input);
 
         /* Check for EOF */
