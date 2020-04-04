@@ -5,13 +5,14 @@ SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers.
 ### Specification
 + SRP16 ISA Specifaction [[.pdf]](Documentation/SRP16%20ISA%20Specification.pdf)
 + SRP16 Assembler Guide [[.pdf]](Documentation/SRP16%20Assembler%20Guide.pdf)
++ .dhex File Specification [[.pdf]](Documentation/dhex%20Specification.pdf)
 
 ### Roadmap
 - [x] ISA Specification
 - [x] Reference Implementation in Icarus Verilog
 - [ ] Reference Implementation in Lattice iCEstick
 - [x] Assembler
-- [ ] ISA Simulator
+- [x] ISA Simulator
 - [ ] I/O, Interrupts and Timers
 
 ## ISA Quick Reference

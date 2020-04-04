@@ -15,7 +15,7 @@ help :
 EXEC_NAME = srp16sim
 
 # Linked libs
-LIBS = -lreadline
+LIBS = -lreadline -static
 
 # C++ compiler
 CXX ?= g++
