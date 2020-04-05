@@ -76,7 +76,7 @@ SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers.
 | CL Rx                             | if(A<Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
 | CG Rx                             | if(A>Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
 | CE Rx                             | if(A==Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
-s
+
 ## Installing toolchain
 + Clone repo, `cd` into it
 ```
