@@ -5,6 +5,7 @@ SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers.
 ### Specification
 + SRP16 ISA Specifaction [[.pdf]](Documentation/SRP16%20ISA%20Specification.pdf)
 + SRP16 Assembler Guide [[.pdf]](Documentation/SRP16%20Assembler%20Guide.pdf)
++ SRP16 ISA Simulator Manual [[.pdf]](Documentation/ISA%20Simulator%20Manual.pdf)
 + .dhex File Specification [[.pdf]](Documentation/dhex%20Specification.pdf)
 
 ### Roadmap
@@ -75,6 +76,65 @@ SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers.
 | CL Rx                             | if(A<Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
 | CG Rx                             | if(A>Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
 | CE Rx                             | if(A==Rx): flag ⟵ 1 <br> else: flag ⟵ 0			|
+s
+## Installing toolchain
++ Clone repo, `cd` into it
+```
+git clone https://github.com/RainingComputers/SRP16.git
+cd SRP16
+```
++ Compile and build executable,
+```
+make build
+```
++ Install, requires root privilege
+```
+make install
+```
+
+## Getting started
+Let's write a simple program to generate fibonacci numbers, and save it as `test.asm`
+```
+	lda 1					
+	ldr r0, 0		;Load initial values		
+	ldr r1, 1				
+loop:						
+	add r0					
+	mov r0, r1			
+	mov r1, a		;Add to accumulator		
+	sjmp loop		;Loop
+```
+Now to assemble the program, 
+```
+srp16asm test.asm -s test.dhex
+```
+Now, to start the simulator,
+```
+srp16sim test.dhex
+```
+You will see a prompt,
+```
+(pc@0x0000) █  
+```
+Let's set a break point at end of the loop,
+```
+(pc@0x0000) bp "fibonacci.asm" 8
+```
+Now use `run` command to run it, and `a` to view contents of the accumulator,
+```
+(pc@0x0000) run
+(pc@0x000c) a
+a = 0x0001
+(pc@0x000c) run
+(pc@0x000c) a
+a = 0x0002
+(pc@0x000c) run
+(pc@0x000c) a
+a = 0x0003
+(pc@0x000c) run
+(pc@0x000c) a
+a = 0x0005
+```
 
 ## License
 + MIT License. See: https://github.com/RainingComputers/SRP16/blob/master/LICENSE.md
