@@ -79,6 +79,7 @@ namespace cpu
         /* Initial state for cpu */
         registers[MPTR] = 0;
         registers[PC] = 0;
+        registers[SP] = 0xffff;
         flag = false;
         inc_pc = true;
         illegal_instruction = false;
