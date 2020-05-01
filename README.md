@@ -83,6 +83,10 @@ SRP16 is free and open ISA for 16-bit CPUs and Microcontrollers.
 git clone https://github.com/RainingComputers/SRP16.git
 cd SRP16
 ```
++ Install readline library
+```
+apt-get install libreadline libreadline-dev
+```
 + Compile and build executable,
 ```
 make build

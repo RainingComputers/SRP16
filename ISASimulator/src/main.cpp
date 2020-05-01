@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            log::print("Unknown command or symbol name");
+            log::print("Unknown/bad command or symbol name");
         }
         
         /* Free buffer that was allocated by readline */
