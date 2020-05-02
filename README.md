@@ -85,7 +85,7 @@ cd SRP16
 ```
 + Install readline library
 ```
-apt-get install libreadline libreadline-dev
+apt-get install libreadline-dev
 ```
 + Compile and build executable,
 ```
@@ -122,7 +122,7 @@ You will see a prompt,
 ```
 Let's set a break point at end of the loop,
 ```
-(pc@0x0000) bp "fibonacci.asm" 8
+(pc@0x0000) bp "test.asm" 8
 ```
 Now use `run` command to run it, and `a` to view contents of the accumulator,
 ```
