@@ -1,12 +1,9 @@
 #include "split.hpp"
 
-size_t split(const std::string &txt, std::vector<std::string> &strs)
+void split(const std::string &txt, std::vector<std::string> &strs)
 {   
     /* Clear token lost */
     strs.clear();
-
-    size_t start_pos = 0;
-    size_t end_pos = std::string::npos;
 
     for(int i=0; i<txt.length(); i++)
     {

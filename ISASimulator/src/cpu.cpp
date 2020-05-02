@@ -67,6 +67,8 @@ namespace cpu
                 break;
             }
         }
+
+        return -1;
     }
 
     srp16cpu::srp16cpu()

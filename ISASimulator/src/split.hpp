@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-size_t split(const std::string &txt, std::vector<std::string> &strs);
+void split(const std::string &txt, std::vector<std::string> &strs);
 
 
 #endif

@@ -106,7 +106,8 @@ namespace syntax
         else if(operand == "mptr" && reg_range>31) return 61;
         else if(operand == "sp" && reg_range>31) return 62;
         else if(operand == "pc" && reg_range>31) return 63;
-        else return -1;
+        
+        return -1;
     }
 
     bool immediate_to_int(const std::string& operand, int& num)
