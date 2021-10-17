@@ -1,6 +1,6 @@
 module SRP16_core(
     clk, reset, address_bus, data_bus, 
-    mem_read, mem_write
+    mem_read, mem_write, reg_id, reg_read, reg_write
 );
     /* Input Ports */
     input clk;
@@ -9,6 +9,8 @@ module SRP16_core(
     /* Processor Busses */
     output wire [15:0] address_bus;
     inout wire [15:0] data_bus;
+    output wire [5:0] reg_id;
+    output wire reg_read, reg_write;
 
     /* Memory Control Lines */
     output wire mem_read, mem_write;
@@ -20,13 +22,19 @@ module SRP16_core(
     wire reg_file_write, reg_file_writeu; 
     wire reg_file_inc, reg_file_dec;
     wire [5:0] reg_file_id;
-    wire [11:0] mptr_offset;
+    wire [11:0] mptr_offsetin;
     wire mptr_read_abus, mptr_read_abusplus; 
-    wire mptr_read_dbus, mptr_write, mptr_writeu;
-    wire sp_read_dbus, sp_write, sp_pop, sp_push;
+    wire mptr_read_dbus, mptr_write, mptr_writeu, mptr_offset;
+    wire sp_read_dbus, sp_read_abus, sp_write, sp_inc, sp_dec;
     wire [4:0] alu_opcode;
     wire alu_read, alu_write, alu_writeu, flag;
     wire temp_reg_read, temp_reg_write;
+
+    /* Assign register output ports, for external modules
+        like GPIO, SPI, Serial */
+    assign reg_id = reg_file_id;
+    assign reg_read = reg_file_read;
+    assign reg_write = reg_file_write;
 
     /* ALU Flag Output */
     wire alu_flag;
@@ -56,14 +64,14 @@ module SRP16_core(
     );
 
     mptr MPTR(
-        data_bus, mptr_offset, mptr_read_abus, mptr_read_abusplus, 
-        mptr_read_dbus, mptr_write, mptr_writeu,
+        data_bus, mptr_offsetin, mptr_read_abus, mptr_read_abusplus, 
+        mptr_read_dbus, mptr_write, mptr_writeu, mptr_offset,
         clk, address_bus, data_bus, reset
     );
 
     sp SP(
-        data_bus, sp_read_dbus, sp_write, sp_pop,
-        sp_push, clk, address_bus, data_bus, reset
+        data_bus, sp_read_dbus, sp_read_abus, sp_write, sp_inc,
+        sp_dec, clk, address_bus, data_bus, reset
     );
 
     alu ALU(
@@ -81,9 +89,9 @@ module SRP16_core(
         reg_file_inc, reg_file_dec,
         reg_file_id,
         mem_read, mem_write,
-        mptr_offset, mptr_read_abus, mptr_read_abusplus,
-        mptr_read_dbus, mptr_write, mptr_writeu,
-        sp_read_dbus, sp_write, sp_pop, sp_push,
+        mptr_offsetin, mptr_read_abus, mptr_read_abusplus,
+        mptr_read_dbus, mptr_write, mptr_writeu, mptr_offset,
+        sp_read_dbus, sp_read_abus, sp_write, sp_inc, sp_dec,
         alu_opcode, alu_read, alu_write, alu_writeu, flag,
         temp_reg_read, temp_reg_write,
         data_bus

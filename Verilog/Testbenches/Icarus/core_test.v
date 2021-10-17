@@ -52,9 +52,11 @@ module sim_core_tb();
             $dumpvars(0, sim_core_tb.CPU.MEMORY.data[i]);
 
         /* Reset processor */
-        clk <= 1;
+        clk <= 0;
         reset <= 1; 
         #1;
+        clk <= 1;
+        #1
         reset <= 0;
         #1;
 

@@ -85,7 +85,7 @@ cd SRP16
 ```
 + Install readline library
 ```
-apt-get install libreadline-dev
+sudo apt-get install libreadline-dev
 ```
 + Compile and build executable,
 ```
@@ -93,7 +93,7 @@ make build
 ```
 + Install, requires root privilege
 ```
-make install
+sudo make install
 ```
 
 ## Getting started

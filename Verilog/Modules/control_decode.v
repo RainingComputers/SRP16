@@ -22,9 +22,9 @@ module control_decode(reset, instruction, clk,
     reg_file_inc, reg_file_dec,
     reg_file_id,
     mem_read, mem_write,
-    mptr_offset, mptr_read_abus, mptr_read_abusplus,
-    mptr_read_dbus, mptr_write, mptr_writeu,
-    sp_read_dbus, sp_write, sp_pop, sp_push,
+    mptr_offsetin, mptr_read_abus, mptr_read_abusplus,
+    mptr_read_dbus, mptr_write, mptr_writeu, mptr_offset,
+    sp_read_dbus, sp_read_abus, sp_write, sp_inc, sp_dec,
     alu_opcode, alu_read, alu_write, alu_writeu, flag, 
     temp_reg_read, temp_reg_write,
     dout
@@ -42,17 +42,22 @@ module control_decode(reset, instruction, clk,
     output reg reg_file_inc, reg_file_dec;
     output reg [5:0] reg_file_id;
     output reg mem_read, mem_write;
-    output reg [11:0] mptr_offset;
+    output reg [11:0] mptr_offsetin;
     output reg mptr_read_abus, mptr_read_abusplus; 
-    output reg mptr_read_dbus, mptr_write, mptr_writeu;
-    output reg sp_read_dbus, sp_write, sp_pop, sp_push;
+    output reg mptr_read_dbus, mptr_write, mptr_writeu, mptr_offset;
+    output reg sp_read_dbus, sp_read_abus, sp_write, sp_inc, sp_dec;
     output reg [4:0] alu_opcode;
     output reg alu_read, alu_write, alu_writeu;
     output reg temp_reg_read, temp_reg_write;
-    output reg [15:0] dout;
+    output [15:0] dout;
 
     /* Internal variables */
     reg [3:0] phase;
+    reg [15:0] data_out;
+    reg data_en;
+
+    /* Dout port */
+    assign dout = (data_en)? data_out : 16'hzzzz;
 
     /* Task for clearing control lines */
     task clear_control_lines;
@@ -64,14 +69,15 @@ module control_decode(reset, instruction, clk,
         {reg_file_inc, reg_file_dec} <= 2'b00;
         reg_file_id <= 5'b00000;
         {mem_read, mem_write} <= 2'b00;
-        mptr_offset <= 12'h000;
+        mptr_offsetin <= 12'h000;
         {mptr_read_abus, mptr_read_abusplus} <= 2'b00;
-        {mptr_read_dbus, mptr_write, mptr_writeu} <= 3'b000;
-        {sp_read_dbus, sp_write, sp_pop, sp_push} <= 4'b0000;
+        {mptr_read_dbus, mptr_write, mptr_writeu, mptr_offset} <= 4'b0000;
+        {sp_read_dbus, sp_read_abus, sp_write, sp_inc, sp_dec} <= 5'b00000;
         alu_opcode <= 4'b0000;
         {alu_read, alu_write, alu_writeu} <= 3'b000;
         {temp_reg_read, temp_reg_write} <= 2'b00;
-        dout <= 16'hzzzz;
+        data_out <= 16'h0000;
+        data_en <= 1'b0;
     end
     endtask
 
@@ -107,7 +113,8 @@ module control_decode(reset, instruction, clk,
                 4'b0000: begin
                     reg_file_write <= 1;
                     reg_file_id <= `E_TYPE_REG1;
-                    dout <= {{8{`SIGN_BIT}}, `E_TYPE_IMM};
+                    data_out <= {{8{`SIGN_BIT}}, `E_TYPE_IMM};
+                    data_en <= 1'b1;
                     pc_inc <= 1;
                     phase <= 3'b000;
                 end
@@ -115,7 +122,8 @@ module control_decode(reset, instruction, clk,
                 4'b0001: begin
                     reg_file_writeu <= 1;
                     reg_file_id <= `E_TYPE_REG1;
-                    dout <= {8'h00, `E_TYPE_IMM};
+                    data_out <= {8'h00, `E_TYPE_IMM};
+                    data_en <= 1'b1;
                     pc_inc <= 1;
                     phase <= 3'b000;
                 end
@@ -132,9 +140,13 @@ module control_decode(reset, instruction, clk,
                     else if(phase == 3'b011) begin
                         mptr_read_abusplus <= 1;
                         mem_read <= 1;
-                        mptr_offset <= `E_TYPE_OFFSET;
                         reg_file_writeu <= 1;
                         reg_file_id <= `E_TYPE_REG1;
+                        phase <= phase + 3'b001;
+                    end
+                    else if(phase == 3'b100) begin
+                        mptr_offset <= 1;
+                        mptr_offsetin <= `E_TYPE_OFFSET;
                         pc_inc <= 1;
                         phase <= 3'b000;
                     end
@@ -152,9 +164,13 @@ module control_decode(reset, instruction, clk,
                     else if(phase == 3'b011) begin
                         mptr_read_abusplus <= 1;
                         mem_write <= 1;
-                        mptr_offset <= `E_TYPE_OFFSET;
                         reg_file_readu <= 1;
                         reg_file_id <= `E_TYPE_REG1;
+                        phase <= phase + 3'b001;
+                    end
+                    else if(phase == 3'b100) begin
+                        mptr_offset <= 1;
+                        mptr_offsetin <= `E_TYPE_OFFSET;
                         pc_inc <= 1;
                         phase <= 3'b000;
                     end
@@ -162,30 +178,43 @@ module control_decode(reset, instruction, clk,
 
                 /* LDB@MPTR Instruction */
                 4'b0100: begin
-                    mptr_read_abus <= 1;
-                    mem_read <= 1;
-                    mptr_offset <= `E_TYPE_OFFSET;
-                    reg_file_write <= 1;
-                    reg_file_id <= `E_TYPE_REG1;
-                    pc_inc <= 1;
-                    phase <= 3'b000;
+                    if(phase == 3'b010) begin
+                        mptr_read_abus <= 1;
+                        mem_read <= 1;
+                        reg_file_write <= 1;
+                        reg_file_id <= `E_TYPE_REG1;
+                        phase <= phase + 3'b001;
+                    end
+                    else if(phase == 3'b011) begin
+                        mptr_offset <= 1;
+                        mptr_offsetin <= `E_TYPE_OFFSET;
+                        pc_inc <= 1;
+                        phase <= 3'b000;
+                    end
                 end
 
                 /* STB@MPTR Instruction */
                 4'b0101: begin
-                    mptr_read_abus <= 1;
-                    mem_write <= 1;
-                    mptr_offset <= `E_TYPE_OFFSET;
-                    reg_file_read <= 1;
-                    reg_file_id <= `E_TYPE_REG1;
-                    pc_inc <= 1;
-                    phase <= 3'b000;
+                    if(phase == 3'b010) begin
+                        mptr_read_abus <= 1;
+                        mem_write <= 1;
+                        reg_file_read <= 1;
+                        reg_file_id <= `E_TYPE_REG1;
+                        phase <= phase + 3'b001;
+                    end
+                    else if(phase == 3'b011) begin
+                        mptr_offset <= 1;
+                        mptr_offsetin <= `E_TYPE_OFFSET;
+                        pc_inc <= 1;
+                        phase <= 3'b000;
+                    end
                 end
 
                 /* LDA Instruction */
                 4'b0110: begin
                     alu_write <= 1;
-                    dout <= {{4{`SIGN_BIT}}, `T_TYPE_IMM};
+                    data_out <= {{4{`SIGN_BIT}}, `T_TYPE_IMM};
+                    data_en <= 1'b1;
                     pc_inc <= 1;
                     phase <= 3'b000;
                 end
@@ -193,7 +222,8 @@ module control_decode(reset, instruction, clk,
                 /* LDMPTR Instruction */
                 4'b0111: begin
                     mptr_write <= 1;
-                    dout <= {4'h0, `T_TYPE_IMM};
+                    data_out <= {4'h0, `T_TYPE_IMM};
+                    data_en <= 1'b1;
                     pc_inc <= 1;
                     phase <= 3'b000;
                 end
@@ -201,7 +231,8 @@ module control_decode(reset, instruction, clk,
                 /* LDMPTRU Instruction */
                 4'b1000: begin
                     mptr_writeu <= 1;
-                    dout <= {4'h0, `T_TYPE_IMM};
+                    data_out <= {4'h0, `T_TYPE_IMM};
+                    data_en <= 1'b1;
                     pc_inc <= 1;
                     phase <= 3'b000;
                 end
@@ -210,7 +241,7 @@ module control_decode(reset, instruction, clk,
                 4'b1001: begin
                     if(phase == 3'b010) begin
                         /* If register transfer between two general purpose registers */
-                        if(`R_TYPE_REG1 <= 6'b011111 && `R_TYPE_REG2 <= 6'b011111) begin
+                        if(`R_TYPE_REG1 <= 6'b111011 && `R_TYPE_REG2 <= 6'b111011) begin
                             /* Setup read signal */
                             reg_file_id <= `R_TYPE_REG2;
                             reg_file_read <= 1;
@@ -253,7 +284,7 @@ module control_decode(reset, instruction, clk,
                     end
                     else if(phase === 3'b011) begin
                         /* If register transfer between two general purpose registers */
-                        if(`R_TYPE_REG1 <= 6'b011111 && `R_TYPE_REG2 <= 6'b011111) begin
+                        if(`R_TYPE_REG1 <= 6'b111011 && `R_TYPE_REG2 <= 6'b111011) begin
                             /* Setup read signal */
                             temp_reg_read <= 1;
                             /* Setup write signal */
@@ -269,7 +300,8 @@ module control_decode(reset, instruction, clk,
                 /* SJMP Instruction */
                 4'b1010: begin
                     pc_offset <= 1;
-                    dout <= {{4{`SIGN_BIT}}, `T_TYPE_OFFSET};
+                    data_out <= {{4{`SIGN_BIT}}, `T_TYPE_OFFSET};
+                    data_en <= 1'b1;
                     phase <= 3'b000;
                 end
 
@@ -277,7 +309,8 @@ module control_decode(reset, instruction, clk,
                 4'b1011: begin
                     if(flag) begin
                         pc_offset <= 1;
-                        dout <= {{4{`SIGN_BIT}}, `T_TYPE_OFFSET};
+                        data_out <= {{4{`SIGN_BIT}}, `T_TYPE_OFFSET};
+                        data_en <= 1'b1;
                     end
                     else pc_inc <= 1;
                     phase <= 3'b000;
@@ -288,7 +321,8 @@ module control_decode(reset, instruction, clk,
                     /* LDAU Instruction */
                     if(`R_TYPE_OPCODE2 == 6'b111011) begin    
                             alu_writeu <= 1;
-                            dout <= {{10{1'b0}}, `R_TYPE_IMM};
+                            data_out <= {{10{1'b0}}, `R_TYPE_IMM};
+                            data_en <= 1'b1;
                             pc_inc <= 1;
                             phase <= 3'b000;
                     end
@@ -297,15 +331,23 @@ module control_decode(reset, instruction, clk,
                         if(phase == 3'b010) begin
                             reg_file_id <= `R_TYPE_REG2;
                             reg_file_write <= 1;
-                            sp_pop <= 1;
+                            sp_read_abus <= 1;
                             mem_read <= 1;
                             phase <= phase + 3'b001;
                         end
                         else if(phase == 3'b011) begin
+                            sp_inc <= 1;
+                            phase <= phase + 3'b001;
+                        end
+                        else if(phase == 3'b100) begin
                             reg_file_id <= `R_TYPE_REG2;
                             reg_file_writeu <= 1;
-                            sp_pop <= 1;
+                            sp_read_abus <= 1;
                             mem_read <= 1;
+                            phase <= phase + 3'b001;
+                        end
+                        else if(phase == 3'b101) begin
+                            sp_inc <= 1;
                             phase <= 3'b000;
                             pc_inc <= 1;
                         end
@@ -313,16 +355,24 @@ module control_decode(reset, instruction, clk,
                     /* PUSH Instruction */
                     else if(`R_TYPE_OPCODE2 == 6'b111101) begin
                         if(phase == 3'b010) begin
-                            reg_file_id <= `R_TYPE_REG2;
-                            reg_file_readu <= 1;
-                            sp_push <= 1;
-                            mem_write <= 1;
+                            sp_dec <= 1;
                             phase <= phase + 3'b001;
                         end
                         else if(phase == 3'b011) begin
                             reg_file_id <= `R_TYPE_REG2;
+                            reg_file_readu <= 1;
+                            sp_read_abus <= 1;
+                            mem_write <= 1;
+                            phase <= phase + 3'b001;
+                        end
+                        else if(phase == 3'b100) begin
+                            sp_dec <= 1;
+                            phase <= phase + 3'b001;
+                        end
+                        else if(phase == 3'b101) begin
+                            reg_file_id <= `R_TYPE_REG2;
                             reg_file_read <= 1;
-                            sp_push <= 1;
+                            sp_read_abus <= 1;
                             mem_write <= 1;
                             phase <= 3'b000;
                             pc_inc <= 1;
@@ -344,7 +394,8 @@ module control_decode(reset, instruction, clk,
                     end
                     /* Immediate Shift Instructions */
                     else if(`R_TYPE_OPCODE2 > 6'b011111) begin
-                        dout <= {6'b000000, `R_TYPE_IMM};
+                        data_out <= {6'b000000, `R_TYPE_IMM};
+                        data_en <= 1'b1;
                         alu_opcode <= `R_TYPE_OPCODE2;
                         phase <= 3'b000;
                         pc_inc <= 1;
@@ -362,7 +413,8 @@ module control_decode(reset, instruction, clk,
                 /* E-type Opcode1=1101 Instructions */
                 4'b1101: begin
                     alu_opcode <= {1'b0, `E_TYPE_OPCODE2};
-                    dout <= {{8{`SIGN_BIT}}, `E_TYPE_IMM};
+                    data_out <= {{8{`SIGN_BIT}}, `E_TYPE_IMM};
+                    data_en <= 1'b1;
                     pc_inc <= 1;
                     phase <= 3'b000;
                 end

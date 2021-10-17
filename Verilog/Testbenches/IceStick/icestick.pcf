@@ -1,0 +1,3 @@
+set_io CLK_IN   21
+set_io RLED1    99
+set_io J2_1     80
